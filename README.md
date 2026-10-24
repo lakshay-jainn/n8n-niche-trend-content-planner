@@ -39,7 +39,7 @@ So the only choice is the seeds, and good seeds are the obvious, concrete things
 | The niche name alone | 0 |
 
 That's why:
-- **With AI**, a niche with fewer than 3 keywords (`suggestKeywordsBelow`) gets 8 suggestions (`suggestedKeywords`), and the AI is told to follow those rules. Keywords Google has no data for cost nothing.
+- **With AI**, a niche with fewer than 3 keywords (`suggestKeywordsBelow`) gets 8 suggestions (`suggestedKeywords`), and the AI is told to follow those rules. Keywords Google has no data for are simply skipped.
 - **Without AI**, a niche with no keywords is searched as written, with a note asking for 3–5 keywords.
 - **Every result shows the topics it looked at** and how many rising searches each one found, for example `coffee grinder (50), espresso machine (27)`. Suggested topics are marked so people can keep the ones they like, topics with no data are crossed out, and the weekly summary names the ones that found little. After a week or two you know which to keep.
 
@@ -220,11 +220,14 @@ All native nodes: the **Apify** node for Google Trends, a **Basic LLM Chain** wi
 ## Setup (about 5 minutes)
 
 1. **Import** `workflow.json` (Workflows → Import from file, or Import from URL with the raw link to `workflow.json`).
-2. **Apify:** if n8n asks, install the Apify node (a verified community node; search "Apify"). On n8n Cloud, the instance owner may need to allow verified community nodes in the Cloud Admin Panel first. Then open the **Google Trends** node and create a credential:
-   - **n8n Cloud:** click the **sign-in button** and approve in Apify. No token to copy. The workflow ships with this option selected.
-   - **Self-hosted n8n:** Apify's sign-in isn't available there, so set *Authentication* to **API Key** and paste your token from [apify.com](https://apify.com) (Settings → API & Integrations).
-3. **AI (recommended):** add a **Google Gemini (PaLM) API** credential in the **Gemini model** node. A free key is available at [aistudio.google.com](https://aistudio.google.com). To use OpenAI, Anthropic, Groq or a local Ollama model, replace the **Gemini model** node with that chat model node and connect it to both **Suggest keywords** and **Write content ideas**. No AI? Set `useAI` to false in **Defaults**.
-4. **Pick your inputs:** the form works as soon as the workflow is active. For the weekly plan, set up the sheet (above) and pick it in **Read keyword sheet** and **Add to Google Sheet**. Enable **Send to Slack** or **Send to Telegram** if you want the summary.
+2. **Connect Apify** (it fetches the Google Trends data). If n8n offers to install the Apify node, click **Install** (it's a verified community node; on n8n Cloud the instance owner may need to allow verified community nodes in the Cloud Admin Panel first). Then:
+   - double-click the **Google Trends** node;
+   - open **Credential to connect with** and choose **Create new credential**;
+   - in the window that opens, click the **sign-in button** and approve in Apify. Nothing to copy.
+
+   *Self-hosted n8n has no Apify sign-in.* In the node, set *Authentication* to **API Key** first, then paste your token from [apify.com](https://apify.com) (Settings → API & Integrations) in that window.
+3. **Connect the AI** (it suggests topics and writes the ideas). Double-click **Gemini model** → **Credential to connect with** → **Create new credential**, and paste a free key from [aistudio.google.com](https://aistudio.google.com). To use OpenAI, Anthropic, Groq or a local Ollama model, replace the **Gemini model** node with that chat model node and connect it to both **Suggest keywords** and **Write content ideas**. No AI at all? Set `useAI` to false in **Defaults**.
+4. **Pick your ways in.** Way 1 (the form) works as soon as the workflow is active. For Way 2, set up the sheet (above) and pick it in **Read keyword sheet** and **Add to Google Sheet**. For a weekly message, turn on **Send to Slack** or **Send to Telegram** and connect it the same way.
 5. Optional: adjust **Defaults**.
 
    | Setting | What it does | Default |
@@ -249,15 +252,6 @@ All native nodes: the **Apify** node for Google Trends, a **Basic LLM Chain** wi
 - **Different output:** every idea is one flat row with fixed column names, so Notion, Airtable, email or a webhook can replace Google Sheets in one step.
 - **Different idea style:** edit the instructions in **Prepare AI request**, for example video scripts, newsletter sections or product ideas.
 - **Stricter or looser filtering:** raise `minRelevance`, or change the commented values at the top of **Clean and rank**.
-
-## Cost
-
-The [Google Trends Actor](https://apify.com/clean-fetch/google-trends-scraper) charges per keyword, only for data it actually delivers:
-- rising related queries cost **$0.50** per 1,000 keywords;
-- related topics cost **$1.50** per 1,000 keywords;
-- keywords Google has no data for are free.
-
-**20 keywords every week comes to about $0.16 a month**, well inside Apify's free monthly credit. AI suggestions add 8 keywords to a niche that has few, about $0.016 a run. With AI, it's one model request per niche for ideas, plus one for keyword suggestions when they're needed.
 
 ## How it was tested
 

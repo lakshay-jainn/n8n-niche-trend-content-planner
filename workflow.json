@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Niche trend content planner\nFinds the Google searches **rising in your niche** (related queries and topics for your keywords), removes the junk and turns the rest into content ideas: the likely reason it's rising, angle, hook, format and what to fact-check.\n\n### Three ways to use it\n1. **Web form** (easiest, and shareable with a client): activate the workflow and open the *Form* URL. The only required question is what you make content about; keywords are optional. Results appear on the next page.\n2. **Google Sheet, weekly**: one row per keyword (`niche`, `keyword`, optional `audience`, `country`, `formats`, `active`). A row with a niche and no keyword lets AI suggest keywords for it. Every Monday each niche is planned on its own.\n3. **Run it now**: edit *Test input* and click Execute workflow.\n\n### Setup (5 minutes)\n1. **Apify node:** install it if asked (search \"Apify\"). Free account at apify.com, then an **Apify API** credential in *Google Trends*.\n2. **AI:** a **Google Gemini** credential in *Gemini model* (free key at aistudio.google.com). It's used for keyword suggestions and ideas. Any other chat model works: swap the node. No AI? Set `useAI` to false in *Defaults* and you get the rising searches report.\n3. **Sheet:** pick your sheet in *Read keyword sheet* and *Add to Google Sheet* (tab `Ideas`). Slack/Telegram: enable and pick a channel.\n\n### Cost\n$0.50 (queries) + $1.50 (topics) per 1,000 keywords on Apify; 20 keywords weekly ≈ $0.16/month, inside Apify's free credit.",
+        "content": "## Niche trend content planner\nFinds the Google searches **rising in your niche**, removes the junk and turns the rest into content ideas: the likely reason it's rising, an angle, a hook, a format and what to fact-check.\n\n### Setup (5 minutes)\n1. **Apify:** open *Google Trends* and create a credential. On **n8n Cloud**, click the **sign-in button** and approve in Apify: no token to copy. On **self-hosted** n8n, set *Authentication* to **API Key** and paste your token from apify.com (Settings → API & Integrations). Install the Apify node first if n8n asks (search \"Apify\").\n2. **AI:** open *Gemini model* and add a **Google Gemini** credential (free key at aistudio.google.com). It suggests topics and writes the ideas. Any other chat model works: swap the node. No AI? Set `useAI` to false in *Defaults* and you get the list of rising searches instead.\n3. **Sheet and messages (optional):** pick your sheet in *Read keyword sheet* and *Add to Google Sheet*; turn on *Send to Slack* or *Send to Telegram*.\n\n### Three ways to use it (labelled Way 1-3 on the canvas)\n**Way 1 · Web form**: activate the workflow and open the *Form* URL, or share it with a client. Only the first question is required; ideas appear on the next page.\n**Way 2 · Google Sheet, every Monday**: one row per topic (`niche`, `keyword`, optional `audience`, `country`, `formats`, `active`). A row with just a niche gets topics suggested.\n**Way 3 · Test run**: edit *Test input* and click **Execute workflow**.",
         "width": 600,
         "height": 940,
         "color": 4
@@ -21,7 +21,7 @@
       "parameters": {
         "content": "### Inputs → one shape\nEach source has an adapter that outputs the same rows: `keyword, niche, audience, country, timeRange, formats, useAI, source`. An empty keyword means \"suggest keywords for this niche\"; an empty field is filled from *Defaults*. To add Airtable, Notion or a webhook, add one adapter that feeds *Defaults*.\n\nOwner settings (AI on or off, ideas per niche, default country) live in *Defaults*, not on the form: the person filling the form only answers questions about their content.",
         "width": 700,
-        "height": 300,
+        "height": 280,
         "color": 7
       },
       "id": "7125cbc9-3721-5b00-a722-a729480b007f",
@@ -29,8 +29,56 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -560,
-        -800
+        -600,
+        -880
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Way 1 · Web form\nActivate the workflow, then open or share the *Form* URL. People answer a few questions and see their ideas on the next page.",
+        "width": 700,
+        "height": 260,
+        "color": 5
+      },
+      "id": "3b8c9123-3f21-54a6-bcd9-768f2f33b433",
+      "name": "Way 1 · Web form",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -590
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Way 2 · Google Sheet, every Monday\nOne row per topic in a `Keywords` tab. Ideas land in the `Ideas` tab, with a summary in Slack or Telegram.",
+        "width": 700,
+        "height": 260,
+        "color": 5
+      },
+      "id": "4904ceed-b338-52c9-b19c-d7cd50f79cef",
+      "name": "Way 2 · Google Sheet",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -310
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Way 3 · Test run\nEdit *Test input*, then click **Execute workflow** to see a result right here.",
+        "width": 700,
+        "height": 260,
+        "color": 5
+      },
+      "id": "65505e49-5f90-5f34-90d9-7ede2627a2da",
+      "name": "Way 3 · Test run",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        -30
       ]
     },
     {
@@ -62,7 +110,7 @@
       "typeVersion": 1,
       "position": [
         2620,
-        -760
+        -840
       ]
     },
     {
@@ -78,7 +126,7 @@
       "typeVersion": 1,
       "position": [
         3300,
-        -760
+        -840
       ]
     },
     {
@@ -267,7 +315,7 @@
       "typeVersion": 2.6,
       "position": [
         -520,
-        -460
+        -480
       ],
       "webhookId": "ff42ce3b-a31d-5745-96f6-a03131e55e80"
     },
@@ -281,7 +329,7 @@
       "typeVersion": 2,
       "position": [
         -280,
-        -460
+        -480
       ]
     },
     {
@@ -304,7 +352,7 @@
       "typeVersion": 1.2,
       "position": [
         -520,
-        -220
+        -200
       ]
     },
     {
@@ -327,7 +375,7 @@
       "typeVersion": 4.5,
       "position": [
         -280,
-        -220
+        -200
       ]
     },
     {
@@ -340,7 +388,7 @@
       "typeVersion": 2,
       "position": [
         -60,
-        -220
+        -200
       ]
     },
     {
@@ -351,7 +399,7 @@
       "typeVersion": 1,
       "position": [
         -520,
-        20
+        80
       ]
     },
     {
@@ -392,7 +440,7 @@
       "typeVersion": 3.4,
       "position": [
         -280,
-        20
+        80
       ]
     },
     {
@@ -405,7 +453,7 @@
       "typeVersion": 2,
       "position": [
         -60,
-        20
+        80
       ]
     },
     {
@@ -670,6 +718,7 @@
     },
     {
       "parameters": {
+        "authentication": "apifyOAuth2Api",
         "resource": "Actors",
         "operation": "Run actor and get dataset",
         "actorSource": "store",

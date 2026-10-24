@@ -45,6 +45,8 @@ That's why:
 
 ## Three ways to use it
 
+Each one is labelled on the canvas (**Way 1 · Web form**, **Way 2 · Google Sheet**, **Way 3 · Test run**).
+
 | | Best for | What you give it | Where results go |
 |---|---|---|---|
 | **1. Web form** | One-off checks, or a link for a client who doesn't use n8n | Your niche; keywords optional; a CSV for several niches | A results page, right after you submit |
@@ -218,7 +220,9 @@ All native nodes: the **Apify** node for Google Trends, a **Basic LLM Chain** wi
 ## Setup (about 5 minutes)
 
 1. **Import** `workflow.json` (Workflows → Import from file, or Import from URL with the raw link to `workflow.json`).
-2. **Apify node:** if n8n asks, install it. It's a verified community node; search "Apify" in the nodes panel. On n8n Cloud, the instance owner may need to allow verified community nodes in the Cloud Admin Panel first. Then create a free account at [apify.com](https://apify.com), copy your API token (Settings → API & Integrations), and add an **Apify API** credential in the **Google Trends** node.
+2. **Apify:** if n8n asks, install the Apify node (a verified community node; search "Apify"). On n8n Cloud, the instance owner may need to allow verified community nodes in the Cloud Admin Panel first. Then open the **Google Trends** node and create a credential:
+   - **n8n Cloud:** click the **sign-in button** and approve in Apify. No token to copy. The workflow ships with this option selected.
+   - **Self-hosted n8n:** Apify's sign-in isn't available there, so set *Authentication* to **API Key** and paste your token from [apify.com](https://apify.com) (Settings → API & Integrations).
 3. **AI (recommended):** add a **Google Gemini (PaLM) API** credential in the **Gemini model** node. A free key is available at [aistudio.google.com](https://aistudio.google.com). To use OpenAI, Anthropic, Groq or a local Ollama model, replace the **Gemini model** node with that chat model node and connect it to both **Suggest keywords** and **Write content ideas**. No AI? Set `useAI` to false in **Defaults**.
 4. **Pick your inputs:** the form works as soon as the workflow is active. For the weekly plan, set up the sheet (above) and pick it in **Read keyword sheet** and **Add to Google Sheet**. Enable **Send to Slack** or **Send to Telegram** if you want the summary.
 5. Optional: adjust **Defaults**.

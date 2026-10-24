@@ -3,66 +3,279 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Niche trend content planner\n\nEvery week: the Google searches **rising in your niche** (related queries and topics for your keywords), junk removed, turned into content ideas in a review queue.\n\n### Setup (5 minutes)\n1. **Apify node:** install it from the nodes panel (search \"Apify\"). Create a free account at apify.com and add an **Apify API** credential with your token (Settings → API & Integrations).\n2. **Your settings:** keywords, niche, audience, formats, country.\n3. **AI (recommended):** set `useAI` to true and add a **Google Gemini** credential in *Gemini model* (free key at aistudio.google.com). To use OpenAI, Claude or a local Ollama instead, swap the model node.\n4. **Outputs:** enable *Add to Google Sheet* and *Send to Slack* or *Send to Telegram*.\n\n### Cost\nRising queries $0.50 and topics $1.50 per 1,000 keywords. 20 keywords weekly ≈ $0.16/month, inside Apify's free credit. Keywords Google has no data for are free.",
-        "width": 560,
-        "height": 700,
+        "content": "## Niche trend content planner\nFinds the Google searches **rising in your niche** (related queries and topics for your keywords), removes the junk and turns the rest into content ideas: the likely reason it's rising, angle, hook, format and what to fact-check.\n\n### Three ways to use it\n1. **Web form** (easiest): activate the workflow and open the *Form* URL. Type keywords or upload a CSV; results appear on the next page.\n2. **Google Sheet, weekly**: one keyword per row (`keyword`, `niche`, optional `audience`, `country`, `active`). Any number of niches; every Monday each niche is planned on its own.\n3. **Run it now**: edit *Test input* and click Execute workflow.\n\n### Setup (5 minutes)\n1. **Apify node:** install it if asked (search \"Apify\"). Free account at apify.com, then an **Apify API** credential in *Google Trends*.\n2. **AI:** a **Google Gemini** credential in *Gemini model* (free key at aistudio.google.com). Any other chat model works: swap the node. If AI is off or fails, you get the rising searches report.\n3. **Sheet:** pick your sheet in *Read keyword sheet* and *Add to Google Sheet* (tab `Ideas`). Slack/Telegram: enable and pick a channel.\n\n### Cost\n$0.50 (queries) + $1.50 (topics) per 1,000 keywords on Apify; 20 keywords weekly ≈ $0.16/month, inside Apify's free credit.",
+        "width": 600,
+        "height": 900,
         "color": 4
       },
-      "id": "f1229560-581a-5742-8261-bfa0506c4c71",
-      "name": "Setup",
+      "id": "bfbc137f-47f0-50b4-951d-7d240a7de71c",
+      "name": "Note: about",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -820,
-        -420
+        -1240,
+        -760
       ]
     },
     {
       "parameters": {
-        "content": "### How ideas are picked\n- **Junk out:** Google Trends carries bot and AI-agent searches right now (\"how to make sushi\" as a Breakout under a skincare keyword, prompt-like searches). They're removed.\n- **Relevance:** with AI on, the model scores each search 0-10 for your niche (keep ≥ `minRelevance`). Without AI, a search must share a real word with your keyword or niche.\n- **Variants merged**, boosted when rising under several keywords, **new-this-week** flagged, nothing repeated for 8 weeks, ideas spread across keywords.\n- Tuning values sit at the top of *Clean and rank*.",
-        "width": 460,
-        "height": 320,
+        "content": "### Inputs → one shape\nEach source has an adapter that outputs the same rows: `keyword, niche, audience, country, timeRange, formats, useAI, source` (leave a field empty to use *Defaults*). To add Airtable, Notion or a webhook, add one adapter that feeds *Defaults*. *Build jobs* groups rows into one job per niche (chunks of 40 keywords).",
+        "width": 640,
+        "height": 200,
         "color": 7
       },
-      "id": "aa464694-409d-5ba8-8ac2-b02222f39314",
-      "name": "How ideas are picked",
+      "id": "7125cbc9-3721-5b00-a722-a729480b007f",
+      "name": "Note: inputs",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        700,
-        -420
+        -560,
+        -760
       ]
     },
     {
       "parameters": {
-        "content": "### AI ideas\nEach idea: relevance, why it's probably rising, title, angle, hook, format, and **what to check before publishing**.\nThe *Structured Output Parser* keeps the reply valid. Swap *Gemini model* for any chat model node.",
-        "width": 420,
+        "content": "### How ideas are picked (per niche)\nJunk out (prompt-like searches and generic Breakouts from bot traffic), relevance (AI score 0–10, or word match without AI), variants merged, ranked by growth with a boost for searches rising under several keywords, spread across keywords. Weekly sheet runs never repeat an idea within 8 weeks and flag what's new. Tuning values sit at the top of *Clean and rank*.",
+        "width": 520,
+        "height": 220,
+        "color": 7
+      },
+      "id": "502d6309-d6ff-5170-8729-a0344dc66f0e",
+      "name": "Note: picking",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        -760
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### AI or report\nWith AI each niche gets one request: relevance, why rising, title, angle, hook, format and a fact-check list (*Structured Output Parser* keeps fields valid). Without AI, or if the AI call fails, the niche gets the **rising searches report**: the cleaned list with growth, variants and Google Trends links.",
+        "width": 520,
         "height": 220,
         "color": 5
       },
-      "id": "8b81f2d6-7899-5348-9fad-f14718ab7d25",
-      "name": "AI ideas",
+      "id": "d97c6c35-561d-52ab-8668-221be802fc29",
+      "name": "Note: AI or report",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1640,
-        -420
+        1760,
+        -760
       ]
     },
     {
       "parameters": {
-        "content": "### Outputs (off until you set them up)\n- **Google Sheet:** one row per idea, status \"to review\". A person decides what gets made.\n- **Slack / Telegram:** the top five, or a short \"nothing new\" note on quiet weeks.\nNothing is published automatically.",
-        "width": 400,
-        "height": 240,
+        "content": "### Results\n- **Form:** shown on the results page.\n- **Sheet / test runs:** one row per idea in your sheet (status \"to review\", same columns for ideas and report) and a summary in Slack or Telegram (off until set up).\nNothing is published automatically.",
+        "width": 440,
+        "height": 220,
         "color": 6
       },
-      "id": "9e73d6fa-307d-55e4-b537-d47fed10ac55",
-      "name": "Outputs",
+      "id": "07a42bd7-a965-5688-9bde-59348ef1b82e",
+      "name": "Note: results",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2540,
-        -420
+        2900,
+        -760
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "What's rising in your niche?",
+        "formDescription": "Find the Google searches rising in your niche right now and turn them into content ideas. Takes about 1-2 minutes per niche.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Keywords",
+              "fieldName": "keywords",
+              "fieldType": "textarea",
+              "requiredField": false,
+              "placeholder": "retinol, sunscreen, niacinamide (one per line or comma-separated)"
+            },
+            {
+              "fieldLabel": "Niche",
+              "fieldName": "niche",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "What you make content about, e.g. skincare for beginners"
+            },
+            {
+              "fieldLabel": "Audience",
+              "fieldName": "audience",
+              "fieldType": "text",
+              "requiredField": false,
+              "placeholder": "Who it's for, e.g. people new to skincare (optional)"
+            },
+            {
+              "fieldLabel": "Country",
+              "fieldName": "country",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Worldwide"
+                  },
+                  {
+                    "option": "United States (US)"
+                  },
+                  {
+                    "option": "United Kingdom (GB)"
+                  },
+                  {
+                    "option": "Canada (CA)"
+                  },
+                  {
+                    "option": "Australia (AU)"
+                  },
+                  {
+                    "option": "India (IN)"
+                  },
+                  {
+                    "option": "Germany (DE)"
+                  },
+                  {
+                    "option": "France (FR)"
+                  },
+                  {
+                    "option": "Spain (ES)"
+                  },
+                  {
+                    "option": "Italy (IT)"
+                  },
+                  {
+                    "option": "Netherlands (NL)"
+                  },
+                  {
+                    "option": "Brazil (BR)"
+                  },
+                  {
+                    "option": "Mexico (MX)"
+                  },
+                  {
+                    "option": "Japan (JP)"
+                  },
+                  {
+                    "option": "South Korea (KR)"
+                  },
+                  {
+                    "option": "Singapore (SG)"
+                  },
+                  {
+                    "option": "South Africa (ZA)"
+                  },
+                  {
+                    "option": "UAE (AE)"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Time range",
+              "fieldName": "timeRange",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Past 30 days"
+                  },
+                  {
+                    "option": "Past 7 days"
+                  },
+                  {
+                    "option": "Past 90 days"
+                  },
+                  {
+                    "option": "Past 12 months"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Content formats",
+              "fieldName": "formats",
+              "fieldType": "checkbox",
+              "requiredField": false,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Blog post"
+                  },
+                  {
+                    "option": "Short video"
+                  },
+                  {
+                    "option": "Carousel"
+                  },
+                  {
+                    "option": "Newsletter"
+                  },
+                  {
+                    "option": "Podcast"
+                  },
+                  {
+                    "option": "Email"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Write ideas with AI",
+              "fieldName": "useAI",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes, write content ideas (recommended)"
+                  },
+                  {
+                    "option": "No, just the rising searches report"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Or upload keywords (CSV)",
+              "fieldName": "csv",
+              "fieldType": "file",
+              "requiredField": false,
+              "multipleFiles": false,
+              "acceptFileTypes": ".csv"
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "options": {
+          "buttonLabel": "Find rising searches",
+          "appendAttribution": false,
+          "path": "rising-in-my-niche"
+        }
+      },
+      "id": "7c659329-229e-5450-ac2b-fec257fdf670",
+      "name": "Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -520,
+        -460
+      ],
+      "webhookId": "ff42ce3b-a31d-5745-96f6-a03131e55e80"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Web form -> rows. Keywords come from the text box and/or an uploaded CSV (columns: keyword, and optionally\n// niche, audience, country). Form choices apply to every keyword unless the CSV row says otherwise.\nconst f = $input.first();\nconst j = f.json;\nconst get = (...names) => { for (const n of names) if (j[n] !== undefined && j[n] !== '') return j[n]; return ''; };\nconst TIME = { 'Past 7 days': 'now 7-d', 'Past 30 days': 'today 1-m', 'Past 90 days': 'today 3-m', 'Past 12 months': 'today 12-m' };\nconst countryOf = v => { const m = String(v || '').match(/\\(([A-Z]{2})\\)\\s*$/); return m ? m[1] : (/^[A-Za-z]{2}$/.test(v || '') ? v.toUpperCase() : ''); };\nconst formats = [].concat(get('formats', 'Content formats') || []).join(', ').toLowerCase();\nconst base = {\n  niche: String(get('niche', 'Niche')).trim(),\n  audience: String(get('audience', 'Audience')).trim(),\n  country: countryOf(get('country', 'Country')),\n  timeRange: TIME[get('timeRange', 'Time range')] || 'today 1-m',\n  formats,\n  useAI: !/^no/i.test(String(get('useAI', 'Write ideas with AI') || 'yes')),\n  source: 'form',\n};\nconst rows = String(get('keywords', 'Keywords')).split(/[\\n,;]+/).map(k => k.trim()).filter(Boolean)\n  .map(keyword => ({ ...base, keyword }));\n\n// optional CSV upload\nconst file = Object.keys(f.binary || {})[0];\nif (file) {\n  const text = (await this.helpers.getBinaryDataBuffer(0, file)).toString('utf8').replace(/^﻿/, '');\n  const lines = text.split(/\\r?\\n/).filter(l => l.trim());\n  const sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';\n  const cells = l => { const out = []; let cur = '', q = false;\n    for (let i = 0; i < l.length; i++) { const c = l[i];\n      if (q) { if (c === '\"' && l[i + 1] === '\"') { cur += '\"'; i++; } else if (c === '\"') q = false; else cur += c; }\n      else if (c === '\"') q = true; else if (c === sep) { out.push(cur); cur = ''; } else cur += c; }\n    out.push(cur); return out.map(x => x.trim()); };\n  const head = cells(lines[0]).map(h => h.toLowerCase());\n  const col = names => head.findIndex(h => names.includes(h));\n  const ki = col(['keyword', 'keywords', 'search term', 'term', 'query']);\n  if (ki < 0) throw new Error('The CSV needs a \"keyword\" column (optional: niche, audience, country).');\n  const ni = col(['niche', 'topic', 'group']), ai = col(['audience']), ci = col(['country', 'geo']);\n  for (const l of lines.slice(1)) {\n    const c = cells(l);\n    if (!c[ki]) continue;\n    rows.push({ ...base, keyword: c[ki],\n      niche: (ni >= 0 && c[ni]) || base.niche,\n      audience: (ai >= 0 && c[ai]) || base.audience,\n      country: (ci >= 0 && countryOf(c[ci])) || base.country });\n  }\n}\nif (!rows.length) throw new Error('Add keywords in the text box or upload a CSV with a \"keyword\" column.');\nreturn rows.map(json => ({ json }));"
+      },
+      "id": "cbaa56da-4708-5e50-9bca-992384b7f0d1",
+      "name": "From form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        -460
       ]
     },
     {
@@ -79,24 +292,60 @@
           ]
         }
       },
-      "id": "19716cf8-aa83-5570-b72a-477285e39c5f",
+      "id": "03fef9d0-fce4-5c1e-ba37-9b82d81c6e82",
       "name": "Every Monday at 8:00",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -200,
-        -60
+        -520,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Keywords"
+        },
+        "options": {}
+      },
+      "id": "55e9cfb6-a311-5d60-9a9e-17b9b57c0a87",
+      "name": "Read keyword sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -280,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Google Sheet -> rows. One row per keyword; columns (any order, any case):\n//   keyword (required) · niche (required) · audience · country · active (\"no\" skips the row)\n// Rows without a niche are skipped and reported in the summary.\nconst rows = [], skipped = [];\nfor (const { json: r } of $input.all()) {\n  const row = Object.fromEntries(Object.entries(r).map(([k, v]) => [String(k).trim().toLowerCase(), String(v ?? '').trim()]));\n  const keyword = row.keyword || row.keywords || row.term;\n  if (!keyword) continue;\n  if (/^(no|false|0|off|paused)$/i.test(row.active || '')) continue;\n  if (!row.niche) { skipped.push(keyword); continue; }\n  // null = not given here: \"Build jobs\" fills it from Defaults\n  rows.push({ keyword, niche: row.niche, audience: row.audience || '', country: row.country ? row.country.toUpperCase() : null,\n    timeRange: null, formats: null, useAI: null, source: 'sheet', skipped });\n}\nif (!rows.length) throw new Error('No usable rows in the keyword sheet: it needs \"keyword\" and \"niche\" columns.');\nreturn rows.map(json => ({ json }));"
+      },
+      "id": "378d9287-7a44-5e80-ba6d-cac646a177e7",
+      "name": "From sheet",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        -220
       ]
     },
     {
       "parameters": {},
-      "id": "83a95f25-2d30-5a6a-9323-ea7ae7a3dcb1",
+      "id": "6e0ad1f3-d478-5e8a-bc98-f61d460fc558",
       "name": "Run it now",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -200,
-        140
+        -520,
+        20
       ]
     },
     {
@@ -104,89 +353,164 @@
         "assignments": {
           "assignments": [
             {
-              "id": "4bce5291-15c3-58c9-bfee-2367a86c1e62",
+              "id": "8de434fe-cf34-523e-8eb8-63d20f4afaba",
               "name": "keywords",
               "value": "retinol, sunscreen, niacinamide, hyaluronic acid, vitamin c serum, skin cycling",
               "type": "string"
             },
             {
-              "id": "c451e0b9-df8f-5d2e-9b0e-7896d30ef097",
+              "id": "24104335-2db3-5a80-b3b8-bcfdd4391575",
               "name": "niche",
               "value": "skincare for beginners",
               "type": "string"
             },
             {
-              "id": "b6093412-ceee-55ba-a73b-dbadf721ee26",
+              "id": "5256ce45-0008-5cc4-a08b-f82430665e32",
               "name": "audience",
               "value": "people new to skincare who want simple, honest advice",
               "type": "string"
             },
             {
-              "id": "db5eb9c4-abf2-5359-a8e2-33b3895b3bdb",
-              "name": "contentFormats",
-              "value": "blog post, short video, carousel, newsletter",
-              "type": "string"
-            },
-            {
-              "id": "99fa8bb7-099f-522e-834c-dfbd7c2c5748",
+              "id": "eca009d7-9d6c-5a30-a2f0-2bbfaa5349ac",
               "name": "country",
               "value": "US",
               "type": "string"
             },
             {
-              "id": "0c2334d5-d184-5252-9e99-7649258fc111",
-              "name": "timeRange",
-              "value": "today 1-m",
-              "type": "string"
-            },
-            {
-              "id": "f9e2de06-8b8b-51f2-9f65-e5847193b4cd",
-              "name": "includeTopics",
+              "id": "e11be218-68fa-5551-86c8-a0767638dbdc",
+              "name": "useAI",
               "value": true,
               "type": "boolean"
-            },
-            {
-              "id": "502fb2ff-3cdd-5152-b677-ba25b361cf8c",
-              "name": "ideasPerRun",
-              "value": 10,
-              "type": "number"
-            },
-            {
-              "id": "0c2c77b9-6f34-5028-980a-c9dba1e6e0b6",
-              "name": "useAI",
-              "value": false,
-              "type": "boolean"
-            },
-            {
-              "id": "6ff5e534-f893-52ed-a06c-ebc21dcc7a7d",
-              "name": "minRelevance",
-              "value": 6,
-              "type": "number"
             }
           ]
         },
         "options": {}
       },
-      "id": "5b158d6e-648c-55e5-a03b-aae8b58b401b",
-      "name": "Your settings",
+      "id": "0b0a1aad-1c9f-5e60-9541-c1f77dcd508c",
+      "name": "Test input",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        20,
-        40
+        -280,
+        20
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Checks your settings and turns them into the Google Trends Actor's input.\nconst s = $('Your settings').first().json;\nconst keywords = [...new Set(String(s.keywords || '').split(',').map(k => k.trim()).filter(Boolean))];\nif (!keywords.length) throw new Error('Add at least one keyword in \"Your settings\".');\nif (keywords.length > 50) throw new Error('Use at most 50 keywords per run, so the Actor finishes within 5 minutes.');\nif (!['now 7-d', 'today 1-m', 'today 3-m', 'today 12-m'].includes(s.timeRange))\n  throw new Error('timeRange must be one of: now 7-d, today 1-m, today 3-m, today 12-m.');\n\nconst components = ['relatedQueries'];\nif (s.includeTopics) components.push('relatedTopics');\nreturn [{ json: { actorInput: {\n  keywords,\n  preset: 'custom',\n  components,              // only the parts this workflow uses, so you only pay for those\n  geo: s.country || '',    // empty = worldwide\n  timeRange: s.timeRange,\n  maxTopicsWaitMinutes: 3, // keeps runs short; topics Google holds back longer are skipped (and not charged)\n} } }];"
+        "jsCode": "// \"Run it now\" test input -> rows.\nconst m = $input.first().json;\nreturn String(m.keywords || '').split(/[\\n,;]+/).map(k => k.trim()).filter(Boolean).map(keyword => ({ json: {\n  keyword, niche: m.niche, audience: m.audience || '', country: String(m.country ?? '').toUpperCase(),\n  timeRange: null, formats: null, useAI: m.useAI === true, source: 'manual' } }));"
       },
-      "id": "674b5fb2-bedc-550a-a807-091120e93feb",
+      "id": "5d5f55a2-f42b-596a-98ca-294143d1e171",
+      "name": "From test input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -60,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd667bd8-22d7-5761-9a68-371eab6e565f",
+              "name": "ideasPerNiche",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "b3c4b423-bbc9-54fe-9e56-7818cf1b9aac",
+              "name": "minRelevance",
+              "value": 6,
+              "type": "number"
+            },
+            {
+              "id": "cc11c525-8dda-5156-afa2-465bb2286627",
+              "name": "includeTopics",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "e7e1e2ed-f3dc-5647-909b-c5760e6c8748",
+              "name": "defaultCountry",
+              "value": "US",
+              "type": "string"
+            },
+            {
+              "id": "e6c2fa84-e938-5bd9-b29f-e105166a78f1",
+              "name": "defaultTimeRange",
+              "value": "today 1-m",
+              "type": "string"
+            },
+            {
+              "id": "60b306bc-5653-552c-908f-e99c17e0afda",
+              "name": "defaultFormats",
+              "value": "blog post, short video, carousel, newsletter",
+              "type": "string"
+            },
+            {
+              "id": "ac4bd8af-70c4-5201-a58d-1e474af4b205",
+              "name": "useAIOnSchedule",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "9f6816e4-b355-5101-9e28-a7c24c4c472c",
+              "name": "maxKeywordsPerRun",
+              "value": 300,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "458c5db4-f53d-5a40-8476-46d9863f3804",
+      "name": "Defaults",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        180,
+        -460
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rows -> jobs: one per niche + country + time range, in chunks of 40 keywords so each Google Trends call stays short.\nconst d = $('Defaults').first().json;\nconst CHUNK = 40;\n// a value an input didn't give (null) comes from Defaults; an explicit one (even \"worldwide\" = '') is kept\nconst rows = $input.all().map(({ json: r }) => ({ ...r,\n  country: r.country ?? d.defaultCountry ?? '',\n  timeRange: r.timeRange ?? d.defaultTimeRange,\n  formats: r.formats || d.defaultFormats,\n  useAI: r.useAI ?? (d.useAIOnSchedule === true) }));\nconst max = Number(d.maxKeywordsPerRun) || 300;\nconst unique = new Map();\nfor (const r of rows) {\n  if (!r.niche) throw new Error(`\"${r.keyword}\" has no niche. Every keyword needs a niche (what you make content about).`);\n  const key = `${r.niche.toLowerCase()}|${r.country}|${r.timeRange}`;\n  const k = `${key}|${r.keyword.toLowerCase()}`;\n  if (!unique.has(k)) unique.set(k, { ...r, group: key });\n}\nif (unique.size > max) throw new Error(`This run has ${unique.size} keywords; the limit is ${max} (maxKeywordsPerRun in Defaults).`);\nconst groups = {};\nfor (const r of unique.values()) (groups[r.group] ??= []).push(r);\nconst jobs = [];\nfor (const [group, list] of Object.entries(groups)) {\n  const first = list[0];\n  const formats = [...new Set(list.flatMap(r => String(r.formats || d.defaultFormats).split(',').map(s => s.trim()).filter(Boolean)))].join(', ');\n  for (let i = 0; i < list.length; i += CHUNK) jobs.push({\n    group, niche: first.niche, audience: list.find(r => r.audience)?.audience || '', country: first.country,\n    timeRange: first.timeRange, formats, useAI: first.useAI, source: first.source, skipped: first.skipped || [],\n    keywords: list.slice(i, i + CHUNK).map(r => r.keyword) });\n}\nreturn jobs.map(json => ({ json }));"
+      },
+      "id": "ad87ab85-2381-5c14-8fe1-a51087c69ef0",
+      "name": "Build jobs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        180,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6c5098a1-3b47-58af-be94-283eb2175b42",
+      "name": "Loop over jobs",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        400,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// One job -> the Google Trends Actor's input.\nconst d = $('Defaults').first().json;\nconst job = $input.first().json;\nreturn [{ json: { ...job, actorInput: {\n  keywords: job.keywords,\n  preset: 'custom',\n  components: d.includeTopics === false ? ['relatedQueries'] : ['relatedQueries', 'relatedTopics'],\n  geo: job.country || '',  // empty = worldwide\n  timeRange: job.timeRange,\n  maxTopicsWaitMinutes: 3, // keeps runs short; topics Google holds back longer are skipped (and not charged)\n} } }];"
+      },
+      "id": "75d14221-b78b-5beb-8c21-8ebc55d67de9",
       "name": "Build Actor input",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        240,
-        40
+        620,
+        0
       ]
     },
     {
@@ -204,39 +528,39 @@
         "timeout": 300,
         "memory": 512
       },
-      "id": "c937d9cd-d646-53b0-a9a9-0abd6defb2ed",
+      "id": "31255418-02f9-51bc-aa1e-fb1eee624f99",
       "name": "Google Trends",
       "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 2,
       "position": [
-        460,
-        40
+        840,
+        0
       ]
     },
     {
       "parameters": {
-        "jsCode": "// One item per rising search or topic, exactly as Google Trends reported it. No decisions here.\n// Google marks very fast growth as \"Breakout\" (more than +5,000%), so it gets 5000.\nconst growthNumber = g => /breakout/i.test(g || '') ? 5000 : (parseInt(String(g || '').replace(/[^0-9]/g, ''), 10) || 0);\nconst rows = [];\nfor (const { json: k } of $input.all()) {\n  if (!['complete', 'partial'].includes(k.status)) continue; // e.g. low volume: Google has no data for it (free)\n  for (const q of k.relatedQueries?.rising || [])\n    rows.push({ seed: k.keyword, kind: 'search', text: q.query, topicType: '', growth: q.growth || '', growthNumber: growthNumber(q.growth) });\n  for (const t of k.relatedTopics?.rising || [])\n    rows.push({ seed: k.keyword, kind: 'topic', text: t.title, topicType: t.type || '', growth: t.growth || '', growthNumber: growthNumber(t.growth) });\n}\n// an empty week still has to reach \"Nothing new this week\", and n8n stops a branch that outputs no items\nreturn rows.length ? rows.map(json => ({ json })) : [{ json: { noRisingSearches: true } }];"
+        "jsCode": "// One job's Google Trends results -> one row per rising search or topic, tagged with the job.\n// Keywords Google has no data for are kept as \"noData\" rows, so the summary can name them.\nconst job = $('Loop over jobs').first().json;\nconst tag = { group: job.group, niche: job.niche, audience: job.audience, country: job.country, timeRange: job.timeRange,\n  formats: job.formats, useAI: job.useAI, source: job.source, skipped: job.skipped };\nconst growthNumber = g => /breakout/i.test(g || '') ? 5000 : (parseInt(String(g || '').replace(/[^0-9]/g, ''), 10) || 0);\nconst rows = [];\nfor (const { json: k } of $input.all()) {\n  if (!['complete', 'partial'].includes(k.status)) { rows.push({ ...tag, noData: true, seed: k.keyword }); continue; }\n  for (const q of k.relatedQueries?.rising || [])\n    rows.push({ ...tag, seed: k.keyword, kind: 'search', text: q.query, topicType: '', growth: q.growth || '', growthNumber: growthNumber(q.growth) });\n  for (const t of k.relatedTopics?.rising || [])\n    rows.push({ ...tag, seed: k.keyword, kind: 'topic', text: t.title, topicType: /^topic$/i.test(t.type || '') ? '' : (t.type || ''), growth: t.growth || '', growthNumber: growthNumber(t.growth) });\n}\nreturn (rows.length ? rows : [{ ...tag, noData: true, seed: '' }]).map(json => ({ json }));"
       },
-      "id": "cbaf6688-a805-53e8-9317-33d4be09519c",
+      "id": "d9c59cb4-0211-505a-b1ab-8c0e3afb7877",
       "name": "Collect rising searches",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        680,
-        40
+        1060,
+        0
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Turns raw rising searches into a short, ranked list worth writing about.\n//  1. Junk out. Google Trends data now carries bot and AI-agent traffic: prompt-like searches\n//     (\"explain what X is and its main benefits\") and generic Breakouts (\"how to make sushi\") under unrelated keywords.\n//  2. Relevance. With AI on, the AI judges it later. Without AI, a search must share a real word with its keyword or niche.\n//  3. Variants merged: \"trader joe's retinol\" and \"trader joes retinol\" become one idea.\n//  4. Ranked by growth, boosted when it rises under several of your keywords or as both a search and a topic.\n//  5. Skips what you got in the last 8 weeks, flags what's new since the last run, spreads ideas across keywords.\nconst s = $('Your settings').first().json;\nconst useAI = s.useAI === true;\nconst limit = Math.max(1, Number(s.ideasPerRun) || 10);\nconst candidates = useAI ? Math.min(limit * 3, 40) : limit; // the AI gets extra so it can drop the off-topic ones\n\n// ---- tuning (safe to change) ----\nconst STOP = new Set(['for', 'the', 'and', 'with', 'from', 'that', 'this', 'your', 'you', 'how', 'what', 'when', 'why',\n  'who', 'which', 'can', 'does', 'best', 'top', 'near', 'are', 'was', 'use', 'using', 'new', 'free', 'good', 'get', 'not',\n  'all', 'about', 'into', 'like', 'more', 'most', 'make', 'way', 'ways', 'vs', 'review', 'reviews', 'usa', 'online']);\nconst PROMPT_START = /^(explain|describe|write|list|give me|tell me|summarize|summarise|compare|create|generate|provide|act as)\\b/i;\nconst MAX_WORDS = 9;           // longer \"searches\" read like prompts, not people\nconst JUNK_UNDER_KEYWORDS = 3; // the same unrelated search under this many of your keywords = bot junk\nconst BOOST_PER_EXTRA_KEYWORD = 0.5, BOOST_SEARCH_AND_TOPIC = 0.2, NOT_NEW_FACTOR = 0.8;\nconst REMEMBER_WEEKS = 8;\n\nconst norm = t => String(t).toLowerCase().replace(/['’]/g, '').replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim();\nconst words = t => norm(t).split(' ').filter(w => w.length > 2 && !STOP.has(w));\nconst stems = t => new Set(words(t).map(w => w.slice(0, 5)));\nconst shares = (a, b) => [...a].some(x => b.has(x));\nconst nicheStems = stems(`${s.niche || ''} ${s.audience || ''}`);\n\nconst all = $input.all().map(i => i.json).filter(r => r.text); // drops the \"no rising searches\" marker\nconst seeds = [...new Set($('Google Trends').all().map(i => i.json.keyword))];\nconst seedsWithData = new Set(all.map(r => r.seed));\nconst stats = { risingFound: all.length, junk: 0, offTopic: 0, merged: 0, alreadySent: 0,\n  keywordsWithoutData: seeds.filter(k => !seedsWithData.has(k)) };\n\n// 1 + 2: junk and relevance\nconst under = {};\nfor (const r of all) (under[norm(r.text)] ??= new Set()).add(r.seed);\nconst kept = all.filter(r => {\n  r.related = shares(stems(r.text), new Set([...stems(r.seed), ...nicheStems]));\n  const promptLike = r.kind === 'search' && (PROMPT_START.test(r.text) || norm(r.text).split(' ').length >= MAX_WORDS);\n  const repeated = under[norm(r.text)].size >= JUNK_UNDER_KEYWORDS && !r.related;\n  if (promptLike || repeated) { stats.junk++; return false; }\n  if (!useAI && !r.related) { stats.offTopic++; return false; }\n  return true;\n});\n\n// 3: merge variants: the same words once filler (\"usa\", \"reviews\", \"best\"...) and plural \"s\" are ignored\nconst sig = r => [...new Set(words(r.text).map(w => w.replace(/(?<=..)s$/, '')))].sort().join(' ') || norm(r.text);\nconst groups = [];\nfor (const r of kept.sort((a, b) => b.growthNumber - a.growthNumber)) {\n  const g = groups.find(g => g.sig === sig(r));\n  if (g) {\n    stats.merged++;\n    g.seeds.add(r.seed); g.kinds.add(r.kind);\n    if (norm(r.text) !== norm(g.text)) g.variants.add(r.text);\n    if (r.topicType && !g.topicType) g.topicType = r.topicType;\n    g.related ||= r.related;\n  } else {\n    groups.push({ sig: sig(r), wordSet: new Set(sig(r).split(' ')), text: r.text, growth: r.growth,\n      growthNumber: r.growthNumber, topicType: r.topicType, related: r.related,\n      seeds: new Set([r.seed]), kinds: new Set([r.kind]), variants: new Set() });\n  }\n}\n// a topic that names the same thing as a search (all its 3+ words are in the search) joins that search\nfor (const t of groups.filter(g => g.kinds.size === 1 && g.kinds.has('topic') && g.wordSet.size >= 3)) {\n  const q = groups.find(g => g !== t && g.kinds.has('search') && [...t.seeds].some(k => g.seeds.has(k))\n    && [...t.wordSet].every(w => g.wordSet.has(w)));\n  if (!q) continue;\n  stats.merged++;\n  q.kinds.add('topic'); q.variants.add(t.text); q.topicType ||= t.topicType;\n  q.growthNumber = Math.max(q.growthNumber, t.growthNumber);\n  t.mergedInto = q;\n}\nfor (let i = groups.length - 1; i >= 0; i--) if (groups[i].mergedInto) groups.splice(i, 1);\n\n// 4 + 5: memory, score, spread\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {};\nconst now = Date.now();\nfor (const [k, t] of Object.entries(memory.sent)) if (now - t > REMEMBER_WEEKS * 7 * 86400e3) delete memory.sent[k];\nconst lastRun = new Set(memory.lastRun || []);\nmemory.lastRun = groups.map(g => g.sig);\n\nconst scored = groups\n  .filter(g => { if (memory.sent[g.sig]) { stats.alreadySent++; return false; } return true; })\n  .map(g => {\n    const isNew = !lastRun.has(g.sig);\n    const score = g.growthNumber * (1 + BOOST_PER_EXTRA_KEYWORD * (g.seeds.size - 1))\n      * (g.kinds.size > 1 ? 1 + BOOST_SEARCH_AND_TOPIC : 1) * (isNew ? 1 : NOT_NEW_FACTOR);\n    return { ...g, isNew, score };\n  })\n  .sort((a, b) => b.score - a.score);\n\n// With AI, searches that share no word with your keywords still get a chance (new brands and ingredients often\n// don't), but only up to a third of the list, after the related ones, so bot junk can't crowd out real ideas.\nconst perSeed = Math.max(2, Math.ceil(candidates / Math.max(1, seedsWithData.size)));\nconst used = {};\nconst picked = [];\nconst take = (list, max) => {\n  for (const g of list) {\n    if (picked.length >= max) return;\n    if (picked.includes(g)) continue;\n    const main = [...g.seeds][0];\n    if ((used[main] || 0) < perSeed) { used[main] = (used[main] || 0) + 1; picked.push(g); }\n  }\n};\nconst related = scored.filter(g => g.related), unrelated = scored.filter(g => !g.related);\ntake(related, useAI ? candidates - Math.ceil(candidates / 3) : candidates);\ntake(unrelated, candidates);\ntake(related, candidates);\n\nif (!picked.length) return [{ json: { nothingNew: true, stats } }];\nconst geo = encodeURIComponent(s.country || ''), date = encodeURIComponent(s.timeRange);\nreturn picked.map((g, i) => ({ json: {\n  n: i + 1,\n  key: g.sig,\n  text: g.text,\n  variants: [...g.variants],\n  kind: [...g.kinds].sort().join(' + '),  // \"search\", \"topic\" or \"search + topic\"\n  topicType: g.topicType,\n  growth: g.growth,\n  seeds: [...g.seeds],\n  isNew: g.isNew,\n  googleTrends: `https://trends.google.com/trends/explore?q=${encodeURIComponent(g.text)}&geo=${geo}&date=${date}`,\n  stats,\n} }));"
+        "jsCode": "// All jobs' rising searches -> one item per niche with its best candidates. Per niche:\n//  1. Junk out. Google Trends data carries bot and AI-agent traffic: prompt-like searches (\"explain what X is and its\n//     main benefits\") and generic Breakouts (\"how to make sushi\") under unrelated keywords.\n//  2. Relevance. With AI, the model judges it later; without AI, a search must share a real word with its keyword or niche.\n//  3. Variants merged (\"trader joe's retinol\" = \"trader joes retinol\"; a topic and a search naming the same product).\n//  4. Ranked by growth, boosted when rising under several keywords or as both a search and a topic.\n//  5. Scheduled runs remember what was sent (8 weeks) and flag what's new since the last run.\n//  6. Spread across keywords; with AI, unrelated-looking searches get at most a third of the list (new brands often\n//     share no word with your keywords, so the AI gets a chance to keep them).\nconst d = $('Defaults').first().json;\nconst limit = Math.max(1, Number(d.ideasPerNiche) || 10);\n\n// ---- tuning (safe to change) ----\nconst STOP = new Set(['for', 'the', 'and', 'with', 'from', 'that', 'this', 'your', 'you', 'how', 'what', 'when', 'why',\n  'who', 'which', 'can', 'does', 'best', 'top', 'near', 'are', 'was', 'use', 'using', 'new', 'free', 'good', 'get', 'not',\n  'all', 'about', 'into', 'like', 'more', 'most', 'make', 'way', 'ways', 'vs', 'review', 'reviews', 'usa', 'online']);\nconst PROMPT_START = /^(explain|describe|write|list|give me|tell me|summarize|summarise|compare|create|generate|provide|act as)\\b/i;\nconst MAX_WORDS = 9;           // longer \"searches\" read like prompts, not people\nconst JUNK_UNDER_KEYWORDS = 3; // the same unrelated search under this many keywords = bot junk\nconst BOOST_PER_EXTRA_KEYWORD = 0.5, BOOST_SEARCH_AND_TOPIC = 0.2, NOT_NEW_FACTOR = 0.8;\nconst REMEMBER_WEEKS = 8;\n\nconst norm = t => String(t).toLowerCase().replace(/['’]/g, '').replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim();\nconst words = t => norm(t).split(' ').filter(w => w.length > 2 && !STOP.has(w));\nconst stems = t => new Set(words(t).map(w => w.slice(0, 5)));\nconst shares = (a, b) => [...a].some(x => b.has(x));\nconst sig = t => [...new Set(words(t).map(w => w.replace(/(?<=..)s$/, '')))].sort().join(' ') || norm(t);\n\nconst byNiche = {};\nfor (const { json: r } of $input.all()) (byNiche[r.group] ??= []).push(r);\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {}; memory.lastRun ??= {};\nconst now = Date.now();\nconst out = [];\n\nfor (const [group, rowsAll] of Object.entries(byNiche)) {\n  const info = rowsAll[0];\n  const useAI = info.useAI === true;\n  const remember = info.source === 'sheet'; // one-off form runs always show everything\n  const candidates = useAI ? Math.min(limit * 3, 40) : limit;\n  const all = rowsAll.filter(r => !r.noData);\n  const seedsWithData = new Set(all.map(r => r.seed));\n  const noData = [...new Set(rowsAll.filter(r => r.noData && r.seed).map(r => r.seed))].filter(k => !seedsWithData.has(k));\n  const stats = { risingFound: all.length, junk: 0, offTopic: 0, merged: 0, alreadySent: 0, keywordsWithoutData: noData,\n    skippedRows: info.skipped || [] };\n  const nicheStems = stems(`${info.niche} ${info.audience}`);\n\n  // 1 + 2\n  const under = {};\n  for (const r of all) (under[norm(r.text)] ??= new Set()).add(r.seed);\n  const kept = all.filter(r => {\n    r.related = shares(stems(r.text), new Set([...stems(r.seed), ...nicheStems]));\n    const promptLike = r.kind === 'search' && (PROMPT_START.test(r.text) || norm(r.text).split(' ').length >= MAX_WORDS);\n    if (promptLike || (under[norm(r.text)].size >= JUNK_UNDER_KEYWORDS && !r.related)) { stats.junk++; return false; }\n    if (!useAI && !r.related) { stats.offTopic++; return false; }\n    return true;\n  });\n\n  // 3\n  const groups = [];\n  for (const r of kept.sort((a, b) => b.growthNumber - a.growthNumber)) {\n    const g = groups.find(g => g.sig === sig(r.text));\n    if (g) {\n      stats.merged++;\n      g.seeds.add(r.seed); g.kinds.add(r.kind); g.related ||= r.related;\n      if (norm(r.text) !== norm(g.text)) g.variants.add(r.text);\n      g.topicType ||= r.topicType;\n    } else {\n      groups.push({ sig: sig(r.text), wordSet: new Set(sig(r.text).split(' ')), text: r.text, growth: r.growth,\n        growthNumber: r.growthNumber, topicType: r.topicType, related: r.related,\n        seeds: new Set([r.seed]), kinds: new Set([r.kind]), variants: new Set() });\n    }\n  }\n  for (const t of groups.filter(g => g.kinds.size === 1 && g.kinds.has('topic') && g.wordSet.size >= 3)) {\n    const q = groups.find(g => g !== t && g.kinds.has('search') && [...t.seeds].some(k => g.seeds.has(k))\n      && [...t.wordSet].every(w => g.wordSet.has(w)));\n    if (!q) continue;\n    stats.merged++;\n    q.kinds.add('topic'); q.variants.add(t.text); q.topicType ||= t.topicType;\n    q.growthNumber = Math.max(q.growthNumber, t.growthNumber);\n    t.mergedInto = q;\n  }\n  const merged = groups.filter(g => !g.mergedInto);\n\n  // 4 + 5\n  const sent = remember ? (memory.sent[group] ??= {}) : {};\n  for (const [k, t] of Object.entries(sent)) if (now - t > REMEMBER_WEEKS * 7 * 86400e3) delete sent[k];\n  const lastRun = new Set(remember ? memory.lastRun[group] || [] : []);\n  if (remember) memory.lastRun[group] = merged.map(g => g.sig);\n  const scored = merged\n    .filter(g => { if (sent[g.sig]) { stats.alreadySent++; return false; } return true; })\n    .map(g => {\n      const isNew = remember ? !lastRun.has(g.sig) : null;\n      const score = g.growthNumber * (1 + BOOST_PER_EXTRA_KEYWORD * (g.seeds.size - 1))\n        * (g.kinds.size > 1 ? 1 + BOOST_SEARCH_AND_TOPIC : 1) * (isNew === false ? NOT_NEW_FACTOR : 1);\n      return { ...g, isNew, score };\n    })\n    .sort((a, b) => b.score - a.score);\n\n  // 6\n  const perSeed = Math.max(2, Math.ceil(candidates / Math.max(1, seedsWithData.size)));\n  const used = {}, picked = [];\n  const take = (list, max) => { for (const g of list) {\n    if (picked.length >= max) return;\n    if (picked.includes(g)) continue;\n    const main = [...g.seeds][0];\n    if ((used[main] || 0) < perSeed) { used[main] = (used[main] || 0) + 1; picked.push(g); } } };\n  const related = scored.filter(g => g.related), unrelated = scored.filter(g => !g.related);\n  take(related, useAI ? candidates - Math.ceil(candidates / 3) : candidates);\n  take(unrelated, candidates);\n  take(related, candidates);\n\n  const geo = encodeURIComponent(info.country || ''), date = encodeURIComponent(info.timeRange);\n  out.push({ id: `N${out.length + 1}`, group, niche: info.niche, audience: info.audience, formats: info.formats, country: info.country,\n    timeRange: info.timeRange, useAI, source: info.source, stats, nothingNew: picked.length === 0,\n    candidates: picked.map((g, i) => ({ n: i + 1, key: g.sig, text: g.text, variants: [...g.variants], related: g.related,\n      kind: [...g.kinds].sort().join(' + '), topicType: g.topicType, growth: g.growth, seeds: [...g.seeds], isNew: g.isNew,\n      googleTrends: `https://trends.google.com/trends/explore?q=${encodeURIComponent(g.text)}&geo=${geo}&date=${date}` })) });\n}\nreturn out.map(json => ({ json }));"
       },
-      "id": "b17d5a36-4d13-5cd9-92d9-feba177282de",
+      "id": "b61f8239-b501-5453-8c38-efb41ff8c470",
       "name": "Clean and rank",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        900,
-        40
+        640,
+        -460
       ]
     },
     {
@@ -250,43 +574,8 @@
           },
           "conditions": [
             {
-              "id": "31eb6117-cb25-50dc-b279-b76f2292893e",
-              "leftValue": "={{ $json.nothingNew === true }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "false",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "looseTypeValidation": true,
-        "options": {}
-      },
-      "id": "a12d75db-eb70-597f-9e65-40f89a8490fa",
-      "name": "Anything new?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1120,
-        40
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "63539bcd-756e-558d-86be-078276637657",
-              "leftValue": "={{ $('Your settings').first().json.useAI }}",
+              "id": "fe190112-a35b-5ef5-9faf-35f45669807e",
+              "leftValue": "={{ $json.useAI === true && $json.nothingNew !== true }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -300,26 +589,26 @@
         "looseTypeValidation": true,
         "options": {}
       },
-      "id": "978088ce-5571-58b8-9ecb-67a6ff52a3d0",
-      "name": "Use AI?",
+      "id": "ed980aac-cc17-5540-9425-afc9c65de5ba",
+      "name": "Write ideas with AI?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1340,
-        -60
+        860,
+        -460
       ]
     },
     {
       "parameters": {
-        "jsCode": "// One request for the whole list: cheaper, and the model can compare ideas against each other.\nconst s = $('Your settings').first().json;\nconst list = $input.all().map(({ json: c }) =>\n  `${c.n}. \"${c.text}\"${c.topicType ? ` [topic: ${c.topicType}]` : ''}: rising ${c.growth}`\n  + ` under ${c.seeds.map(k => `\"${k}\"`).join(', ')}${c.variants.length ? `; also searched as ${c.variants.map(v => `\"${v}\"`).join(', ')}` : ''}`\n  + `${c.isNew ? '' : ' (was rising last week too)'}`).join('\\n');\nconst prompt = [\n  `I make content about: ${s.niche}.`,\n  `My audience: ${s.audience}.`,\n  `Formats I publish: ${s.contentFormats}.`,\n  ``,\n  `These searches are rising on Google right now (${s.country || 'worldwide'}, ${s.timeRange}):`,\n  list,\n  ``,\n  `For every numbered item:`,\n  `- relevance: 0-10, how useful it is for my niche and audience. Generic or unrelated searches (bot traffic, other topics) get 0-2.`,\n  `- whyRising: your best guess at why it is rising now, in one sentence. Say \"unclear\" if you don't know; never invent news.`,\n  `- title, angle (what to cover), hook (the first line), format (one of my formats).`,\n  `- checkBeforePublishing: the specific facts in your idea that must be verified (prices, claims, dates, studies). Empty if none.`,\n  `Return one entry per item, using its number as \"n\".`,\n].join('\\n');\nreturn [{ json: { prompt } }];"
+        "jsCode": "// One AI request per niche: the model sees the whole list, so it can compare and drop the weak ones.\nreturn $input.all().map(({ json: n }) => {\n  const list = n.candidates.map(c =>\n    `${c.n}. \"${c.text}\"${c.topicType ? ` [topic: ${c.topicType}]` : ''}: rising ${c.growth}`\n    + ` under ${c.seeds.map(k => `\"${k}\"`).join(', ')}${c.variants.length ? `; also searched as ${c.variants.map(v => `\"${v}\"`).join(', ')}` : ''}`\n    + `${c.isNew === false ? ' (was rising last time too)' : ''}`).join('\\n');\n  const prompt = [\n    `Today is ${new Date().toISOString().slice(0, 10)}. If a title mentions a year, use this one.`,\n    `I make content about: ${n.niche}.`,\n    n.audience ? `My audience: ${n.audience}.` : 'My audience: people interested in this niche.',\n    `Formats I publish: ${n.formats || 'blog post, short video'}.`,\n    ``,\n    `These searches are rising on Google right now (${n.country || 'worldwide'}, ${n.timeRange}):`,\n    list,\n    ``,\n    `For every numbered item:`,\n    `- relevance: 0-10, how useful it is for my niche and audience. Generic or unrelated searches (bot traffic, other topics) get 0-2.`,\n    `- whyRising: the likely reason people are searching it now, in one sentence, worded as a likely reason. You only see Google search data, so don't claim it is viral on a platform or in the news; say \"unclear\" if you don't know.`,\n    `- title, angle (what to cover), hook (the first line), format (one of my formats).`,\n    `- checkBeforePublishing: the specific facts in your idea that must be verified (prices, claims, dates, studies). Empty if none.`,\n    `Return one entry per item, using its number as \"n\", and set \"nicheId\" to \"${n.id}\".`,\n  ].join('\\n');\n  return { json: { ...n, prompt } };\n});"
       },
-      "id": "0fd22cb7-7820-5645-bbaa-c3e6a5a5eccc",
+      "id": "93d3595c-ea2d-5d7b-826e-e61f96f0105c",
       "name": "Prepare AI request",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1580,
-        -180
+        1080,
+        -560
       ]
     },
     {
@@ -337,14 +626,15 @@
         },
         "batching": {}
       },
-      "id": "f1a3a236-7817-534e-b221-cb0fc4c89b88",
+      "id": "344993f5-5730-5b2f-acb6-b19be34586ab",
       "name": "Write content ideas",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        1800,
-        -180
-      ]
+        1320,
+        -560
+      ],
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -353,67 +643,158 @@
           "temperature": 0.6
         }
       },
-      "id": "c25b5735-333e-53e8-9ba0-476758001544",
+      "id": "92661081-a3f3-5f48-b4ea-b5d6876b5d13",
       "name": "Gemini model",
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.2,
       "position": [
-        1740,
-        20
+        1260,
+        -340
       ]
     },
     {
       "parameters": {
         "schemaType": "manual",
-        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"ideas\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"n\": {\n            \"type\": \"integer\"\n          },\n          \"relevance\": {\n            \"type\": \"integer\",\n            \"minimum\": 0,\n            \"maximum\": 10\n          },\n          \"whyRising\": {\n            \"type\": \"string\"\n          },\n          \"title\": {\n            \"type\": \"string\"\n          },\n          \"angle\": {\n            \"type\": \"string\"\n          },\n          \"hook\": {\n            \"type\": \"string\"\n          },\n          \"format\": {\n            \"type\": \"string\"\n          },\n          \"checkBeforePublishing\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          }\n        },\n        \"required\": [\n          \"n\",\n          \"relevance\",\n          \"whyRising\",\n          \"title\",\n          \"angle\",\n          \"hook\",\n          \"format\",\n          \"checkBeforePublishing\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"ideas\"\n  ]\n}",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"nicheId\": {\n      \"type\": \"string\"\n    },\n    \"ideas\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"n\": {\n            \"type\": \"integer\"\n          },\n          \"relevance\": {\n            \"type\": \"integer\",\n            \"minimum\": 0,\n            \"maximum\": 10\n          },\n          \"whyRising\": {\n            \"type\": \"string\"\n          },\n          \"title\": {\n            \"type\": \"string\"\n          },\n          \"angle\": {\n            \"type\": \"string\"\n          },\n          \"hook\": {\n            \"type\": \"string\"\n          },\n          \"format\": {\n            \"type\": \"string\"\n          },\n          \"checkBeforePublishing\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          }\n        },\n        \"required\": [\n          \"n\",\n          \"relevance\",\n          \"whyRising\",\n          \"title\",\n          \"angle\",\n          \"hook\",\n          \"format\",\n          \"checkBeforePublishing\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"nicheId\",\n    \"ideas\"\n  ]\n}",
         "autoFix": false
       },
-      "id": "4cb2d037-c289-5340-97d9-9ca9394f9c6c",
+      "id": "591d6e8c-6f25-5cbc-b47d-4f301856ea95",
       "name": "Idea format",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
+        1420,
+        -340
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The AI's ideas, matched back to their searches; keeps the relevant ones (minRelevance in Defaults), best first.\nconst d = $('Defaults').first().json;\nconst minRelevance = Number(d.minRelevance) || 6;\nconst limit = Math.max(1, Number(d.ideasPerNiche) || 10);\n// The chain's answer doesn't carry the niche it belongs to, so each niche has an id the AI echoes back (\"nicheId\");\n// n8n's item link and the position are fallbacks.\nconst prepared = $('Prepare AI request').all().map(p => p.json);\nreturn $input.all().map((item, i) => {\n  const out = item.json.output || {};\n  const n = prepared.find(p => p.id === out.nicheId) ?? prepared[item.pairedItem?.item] ?? prepared[i];\n  const byN = Object.fromEntries((out.ideas || []).map(x => [Number(x.n), x]));\n  const scored = n.candidates.map(c => ({ c, a: byN[c.n] }));\n  const keep = scored.filter(({ a }) => a && Number(a.relevance) >= minRelevance && a.title)\n    .sort((x, y) => y.a.relevance - x.a.relevance || x.c.n - y.c.n).slice(0, limit);\n  const { prompt, ...rest } = n;\n  return { json: { ...rest, mode: 'ideas', aiDropped: scored.length - keep.length,\n    ideas: keep.map(({ c, a }) => ({ ...c, idea: a.title, angle: a.angle || '', hook: a.hook || '', format: a.format || '',\n      whyRising: a.whyRising || '', checkBeforePublishing: a.checkBeforePublishing || [], relevance: Number(a.relevance) })) } };\n});"
+      },
+      "id": "fe45b076-4df2-5ade-b32b-4f47fae35f08",
+      "name": "Add AI ideas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        -620
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The AI call failed (bad key, rate limit, outage): deliver the rising searches report instead of nothing.\n// n8n's error output carries the niche's own data, plus the error.\nreturn $input.all().map(item => {\n  const { prompt, error, ...n } = item.json;\n  const raw = String(error?.message || error || 'unknown error');\n  const why = /bad request|api key|401|403|permission|credential/i.test(raw) ? 'check the AI credential and model name'\n    : /429|quota|rate/i.test(raw) ? 'the AI provider is rate limiting' : raw.slice(0, 120);\n  return { json: { ...n, mode: 'report', aiNote: `AI was unavailable this run (${why}), so this is the rising searches report.` } };\n});"
+      },
+      "id": "183c78b0-062e-521b-b740-a945ade95713",
+      "name": "AI unavailable: report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        -460
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "d8908237-c65a-50c5-874c-24024635d482",
+      "name": "Combine niches",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
         1900,
-        20
+        -460
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Joins the AI's ideas back to their searches, keeps the relevant ones, best first.\nconst s = $('Your settings').first().json;\nconst minRelevance = Number(s.minRelevance) || 6;\nconst limit = Math.max(1, Number(s.ideasPerRun) || 10);\nconst byN = Object.fromEntries((($input.first().json.output || {}).ideas || []).map(i => [Number(i.n), i]));\nconst all = $('Clean and rank').all().map(({ json: c }) => ({ c, i: byN[c.n] }));\nconst relevant = all.filter(({ i }) => i && Number(i.relevance) >= minRelevance && i.title);\nconst aiDropped = all.length - relevant.length; // judged off-topic by the AI (shown in the summary)\nreturn relevant\n  .sort((a, b) => b.i.relevance - a.i.relevance || a.c.n - b.c.n)\n  .slice(0, limit)\n  .map(({ c, i }) => ({ json: { ...c, idea: i.title, angle: i.angle || '', hook: i.hook || '', format: i.format || '',\n    whyRising: i.whyRising || '', checkBeforePublishing: i.checkBeforePublishing || [], relevance: Number(i.relevance),\n    aiDropped } }));"
+        "jsCode": "// Every niche -> its rows in one fixed set of columns (the same for ideas and for the report), plus a summary line.\n// Scheduled runs also remember what was sent, so next week brings only new searches.\nconst d = $('Defaults').first().json;\nconst limit = Math.max(1, Number(d.ideasPerNiche) || 10);\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {};\nconst today = new Date().toISOString().slice(0, 10);\nconst COLUMNS = ['date', 'niche', 'mode', 'status', 'idea', 'angle', 'hook', 'format', 'whyRising', 'checkBeforePublishing',\n  'risingSearch', 'growth', 'type', 'alsoSearchedAs', 'newThisWeek', 'yourKeywords', 'relevance', 'googleTrends', 'note'];\nconst row = (n, c, extra) => Object.fromEntries(COLUMNS.map(k => [k, ({\n  date: today, niche: n.niche, status: 'to review', risingSearch: c.text, growth: c.growth,\n  type: c.kind + (c.topicType ? ` (${c.topicType})` : ''), alsoSearchedAs: c.variants.join('; '),\n  newThisWeek: c.isNew === null ? '' : c.isNew ? 'yes' : 'no', yourKeywords: c.seeds.join(', '), googleTrends: c.googleTrends,\n  ...extra })[k] ?? '']));\n\nreturn $input.all().map(({ json: n }) => {\n  const mode = n.nothingNew ? 'nothing new' : n.mode || (n.useAI ? 'ideas' : 'report');\n  let rows = [];\n  if (mode === 'ideas') rows = n.ideas.map(c => row(n, c, { mode, idea: c.idea, angle: c.angle, hook: c.hook, format: c.format,\n    whyRising: c.whyRising, checkBeforePublishing: (c.checkBeforePublishing || []).join('; '), relevance: c.relevance }));\n  // the report prefers word-matched searches: when the AI failed, its list also holds unrelated ones it was meant to judge\n  const matched = n.candidates.filter(c => c.related);\n  const reportPicks = (matched.length ? matched : n.candidates).slice(0, limit);\n  if (mode === 'report') rows = reportPicks.map(c => row(n, c, { mode, note: n.aiNote || '' }));\n  if (n.source === 'sheet') { memory.sent[n.group] ??= {};\n    for (const c of mode === 'ideas' ? n.ideas : mode === 'report' ? reportPicks : []) memory.sent[n.group][c.key] = Date.now(); }\n  const st = n.stats;\n  const offTopic = st.offTopic + (n.aiDropped || 0);\n  const noData = st.keywordsWithoutData.length ? ` No Google data for: ${st.keywordsWithoutData.join(', ')}.` : '';\n  const filtered = st.risingFound ? ` From ${st.risingFound} rising searches: ${st.junk} junk and ${offTopic} off-topic removed,`\n    + ` ${st.merged} variants merged${st.alreadySent ? `, ${st.alreadySent} already sent` : ''}.` : ' Google shows no rising searches for these keywords right now.';\n  const headline = mode === 'nothing new' ? 'nothing new is rising'\n    : mode === 'ideas' ? `${rows.length} content ideas` : `${rows.length} rising searches${n.aiNote ? ' (AI unavailable)' : ''}`;\n  return { json: { niche: n.niche, source: n.source, mode, rows, skippedRows: st.skippedRows,\n    summary: `${n.niche}: ${headline}.${filtered}${noData}` } };\n});"
       },
-      "id": "f910eee8-ba7b-5eb7-86d3-ce47444b4430",
-      "name": "Match ideas to searches",
+      "id": "adefca50-22f0-594e-bf74-5840f959e5b4",
+      "name": "Results",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2140,
-        -180
+        2120,
+        -460
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Without AI: a sensible idea per search, based on what kind of search it is.\nconst cap = t => t.charAt(0).toUpperCase() + t.slice(1);\nreturn $input.all().map(({ json: c }) => {\n  const t = c.text, low = t.toLowerCase();\n  let idea, format;\n  if (/^(how|what|why|when|which|who|can|is|are|does|do|should|will)\\b/.test(low)) {\n    idea = `${cap(t)}?`; format = 'blog post that answers the question';\n  } else if (/\\bvs\\.?\\b|\\bversus\\b|\\bor\\b/.test(low)) {\n    idea = `${cap(t)}: which one should you choose?`; format = 'comparison';\n  } else if (/\\breviews?\\b/.test(low) || /brand|product|cosmetic|moisturizer|serum|cream|sunscreen/i.test(c.topicType)) {\n    idea = `${cap(t.replace(/\\s*reviews?\\s*$/i, ''))}: honest review`; format = 'review or short video';\n  } else if (/near me|open now/.test(low)) {\n    idea = `${cap(t)}: a local guide`; format = 'local page';\n  } else {\n    idea = `${cap(t)}: why people are searching for it now`; format = 'short video or carousel';\n  }\n  const more = c.variants.length ? ` People also search \"${c.variants.join('\", \"')}\".` : '';\n  return { json: { ...c, idea, format,\n    angle: `Searches for \"${t}\" are up ${c.growth} around ${c.seeds.map(k => `\"${k}\"`).join(', ')}.${more} Cover what changed and what people want to know.`,\n    hook: /\\?$/.test(idea) ? `${idea} Here is the short answer.` : `Searches for \"${t}\" just jumped ${c.growth}.`,\n    whyRising: '', checkBeforePublishing: ['Open the Google Trends link to see what is driving the rise'], relevance: '' } };\n});"
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7ac4b8f4-c370-5c76-9968-e6480b224bd4",
+              "leftValue": "={{ $json.source === 'form' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
       },
-      "id": "5d5323cb-0377-5d5e-b305-df37c380e1bf",
-      "name": "Basic ideas (no AI)",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "id": "5c372213-05fa-5041-873b-0f617b143ac2",
+      "name": "From the form?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
       "position": [
-        1800,
-        220
+        2340,
+        -460
       ]
     },
     {
       "parameters": {
-        "jsCode": "// One row per idea, in a fixed set of columns any output can use, and remembers what was sent.\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {};\nconst today = new Date().toISOString().slice(0, 10);\nreturn $input.all().map(({ json: c }) => {\n  memory.sent[c.key] = Date.now();\n  return { json: {\n    date: today,\n    status: 'to review',\n    idea: c.idea,\n    angle: c.angle,\n    hook: c.hook,\n    format: c.format,\n    whyRising: c.whyRising,\n    checkBeforePublishing: (c.checkBeforePublishing || []).join('; '),\n    risingSearch: c.text,\n    alsoSearchedAs: c.variants.join('; '),\n    type: c.kind + (c.topicType ? ` (${c.topicType})` : ''),\n    growth: c.growth,\n    newThisWeek: c.isNew ? 'yes' : 'no',\n    yourKeywords: c.seeds.join(', '),\n    relevance: c.relevance,\n    googleTrends: c.googleTrends,\n  } };\n});"
+        "jsCode": "// The results as a web page for the form.\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]);\nconst niches = $input.all().map(i => i.json);\nconst card = r => r.mode === 'ideas'\n  ? `<div class=\"card\"><div class=\"t\">${esc(r.idea)}</div>\n      <div class=\"m\">${esc(r.risingSearch)} · <b>${esc(r.growth)}</b> · ${esc(r.format)} · relevance ${esc(r.relevance)}/10</div>\n      <p><b>Hook:</b> ${esc(r.hook)}</p><p><b>Angle:</b> ${esc(r.angle)}</p>\n      ${r.whyRising ? `<p><b>Likely why:</b> ${esc(r.whyRising)}</p>` : ''}\n      ${r.checkBeforePublishing ? `<p class=\"chk\"><b>Check before publishing:</b> ${esc(r.checkBeforePublishing)}</p>` : ''}\n      <a href=\"${esc(r.googleTrends)}\" target=\"_blank\">See it on Google Trends</a></div>`\n  : `<tr><td><a href=\"${esc(r.googleTrends)}\" target=\"_blank\">${esc(r.risingSearch)}</a></td><td>${esc(r.growth)}</td>\n      <td>${esc(r.type)}</td><td>${esc(r.yourKeywords)}</td></tr>`;\nconst section = n => `<h2>${esc(n.niche)}</h2><p class=\"s\">${esc(n.summary.replace(/^[^:]*:\\s*/, ''))}</p>`\n  + (n.mode === 'ideas' ? n.rows.map(card).join('')\n    : n.mode === 'report' ? `${n.rows[0]?.note ? `<p class=\"chk\">${esc(n.rows[0].note)}</p>` : ''}<table><tr><th>Rising search</th><th>Growth</th><th>Type</th><th>Your keywords</th></tr>${n.rows.map(card).join('')}</table>`\n    : '');\nconst html = `<style>body{font-family:system-ui,sans-serif}h2{margin:24px 0 4px}.s{color:#555;margin:0 0 12px}\n.card{border:1px solid #ddd;border-radius:10px;padding:12px 14px;margin:10px 0;text-align:left}.t{font-weight:600;font-size:16px}\n.m{color:#666;font-size:13px;margin:4px 0 8px}p{margin:6px 0;font-size:14px}.chk{color:#8a5a00}table{border-collapse:collapse;width:100%;font-size:14px}\ntd,th{border-bottom:1px solid #eee;padding:6px;text-align:left}</style>${niches.map(section).join('')}`;\nreturn [{ json: { html } }];"
       },
-      "id": "72359ad4-9927-5dc8-9012-a4aa9d2db0e5",
-      "name": "Review queue rows",
+      "id": "f07d2307-f5c4-547a-92ae-d238febeb386",
+      "name": "Results page",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2380,
-        40
+        2560,
+        -600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "={{ $json.html }}"
+      },
+      "id": "0e494c44-9f5d-5250-a613-fc8c217d963a",
+      "name": "Show results",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        2780,
+        -600
+      ],
+      "webhookId": "ea0efac3-0940-5c6d-8bec-2e483e710c42"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "rows",
+        "options": {}
+      },
+      "id": "a21675d7-c862-52a5-b7ad-ffd6ea4b5197",
+      "name": "One row per idea",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        -400
       ]
     },
     {
@@ -437,40 +818,27 @@
         },
         "options": {}
       },
-      "id": "f009e36e-818d-5d80-af62-53ec3382485b",
+      "id": "7e46929f-ad8c-54c5-ba52-06095035c499",
       "name": "Add to Google Sheet",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        2620,
-        -60
+        2780,
+        -400
       ],
       "disabled": true
     },
     {
       "parameters": {
-        "jsCode": "// A short message for Slack or Telegram.\nconst rows = $input.all().map(i => i.json);\nconst st = $('Clean and rank').first().json.stats;\nconst aiDropped = $('Your settings').first().json.useAI ? ($('Match ideas to searches').first()?.json.aiDropped || 0) : 0;\nconst top = rows.slice(0, 5).map((r, n) => `${n + 1}. ${r.idea}\\n   \"${r.risingSearch}\" ${r.growth}${r.newThisWeek === 'yes' ? ', new' : ''}`).join('\\n');\nconst text = `${rows.length} content ideas from what's rising in your niche this week:\\n\\n${top}\\n\\n`\n  + `From ${st.risingFound} rising searches: ${st.junk} junk and ${st.offTopic + aiDropped} off-topic removed, `\n  + `${st.merged} variants merged, ${st.alreadySent} already sent.`;\nreturn [{ json: { text } }];"
+        "jsCode": "// A short message for Slack or Telegram covering every niche in this run.\nconst niches = $input.all().map(i => i.json);\nconst blocks = niches.map(n => {\n  const top = n.mode === 'ideas' ? n.rows.slice(0, 5).map((r, i) => `${i + 1}. ${r.idea} (\"${r.risingSearch}\" ${r.growth})`).join('\\n')\n    : n.mode === 'report' ? n.rows.slice(0, 5).map((r, i) => `${i + 1}. ${r.risingSearch} (${r.growth})`).join('\\n') : '';\n  return `${n.summary}${top ? `\\n${top}` : ''}`;\n});\nconst skipped = niches[0]?.skippedRows?.length ? `\\n\\nSkipped sheet rows without a niche: ${niches[0].skippedRows.join(', ')}.` : '';\nreturn [{ json: { text: `What's rising in your niches this week\\n\\n${blocks.join('\\n\\n')}${skipped}` } }];"
       },
-      "id": "0f2d7890-d9e6-51cf-9bfd-f48dfd24350f",
+      "id": "60093728-a0f7-51b3-9745-d2e51821f265",
       "name": "Weekly summary",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2620,
-        160
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Sent instead of ideas when nothing new is rising, so a quiet week doesn't look like a broken workflow.\nconst st = $input.first().json.stats;\nconst noData = st.keywordsWithoutData.length ? ` Google has no data for: ${st.keywordsWithoutData.join(', ')}.` : '';\nconst detail = st.risingFound\n  ? ` Of ${st.risingFound} rising searches, ${st.junk + st.offTopic} were junk or off-topic and ${st.alreadySent} were already sent to you.`\n  : ' Google shows no rising searches for your keywords in this period.';\nreturn [{ json: { text: `Nothing new is rising in your niche this week.${detail}${noData}` } }];"
-      },
-      "id": "58301737-1f0a-5f80-afd1-3e2fb5feb0ba",
-      "name": "Nothing new this week",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1340,
-        300
+        2560,
+        -220
       ]
     },
     {
@@ -484,13 +852,13 @@
         "text": "={{ $json.text }}",
         "otherOptions": {}
       },
-      "id": "cbd4c927-a6c8-5d8b-a98d-4e315cf59df5",
+      "id": "2f068ff7-361c-5dda-9874-3c5c3dae9095",
       "name": "Send to Slack",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.2,
       "position": [
-        2860,
-        120
+        2780,
+        -260
       ],
       "disabled": true
     },
@@ -502,23 +870,67 @@
           "appendAttribution": false
         }
       },
-      "id": "e52dda41-d16e-5ffe-846f-cb5f618618dc",
+      "id": "1692af63-40a9-57fc-990c-0a1812c16ebe",
       "name": "Send to Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        2860,
-        300
+        2780,
+        -100
       ],
       "disabled": true
     }
   ],
   "connections": {
+    "Form": {
+      "main": [
+        [
+          {
+            "node": "From form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "From form": {
+      "main": [
+        [
+          {
+            "node": "Defaults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Every Monday at 8:00": {
       "main": [
         [
           {
-            "node": "Your settings",
+            "node": "Read keyword sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read keyword sheet": {
+      "main": [
+        [
+          {
+            "node": "From sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "From sheet": {
+      "main": [
+        [
+          {
+            "node": "Defaults",
             "type": "main",
             "index": 0
           }
@@ -529,15 +941,66 @@
       "main": [
         [
           {
-            "node": "Your settings",
+            "node": "Test input",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Your settings": {
+    "Test input": {
       "main": [
+        [
+          {
+            "node": "From test input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "From test input": {
+      "main": [
+        [
+          {
+            "node": "Defaults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Defaults": {
+      "main": [
+        [
+          {
+            "node": "Build jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build jobs": {
+      "main": [
+        [
+          {
+            "node": "Loop over jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over jobs": {
+      "main": [
+        [
+          {
+            "node": "Clean and rank",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Build Actor input",
@@ -573,7 +1036,7 @@
       "main": [
         [
           {
-            "node": "Clean and rank",
+            "node": "Loop over jobs",
             "type": "main",
             "index": 0
           }
@@ -584,32 +1047,14 @@
       "main": [
         [
           {
-            "node": "Anything new?",
+            "node": "Write ideas with AI?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Anything new?": {
-      "main": [
-        [
-          {
-            "node": "Use AI?",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Nothing new this week",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Use AI?": {
+    "Write ideas with AI?": {
       "main": [
         [
           {
@@ -620,9 +1065,9 @@
         ],
         [
           {
-            "node": "Basic ideas (no AI)",
+            "node": "Combine niches",
             "type": "main",
-            "index": 0
+            "index": 2
           }
         ]
       ]
@@ -664,40 +1109,76 @@
       "main": [
         [
           {
-            "node": "Match ideas to searches",
+            "node": "Add AI ideas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI unavailable: report",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Match ideas to searches": {
+    "Add AI ideas": {
       "main": [
         [
           {
-            "node": "Review queue rows",
+            "node": "Combine niches",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Basic ideas (no AI)": {
+    "AI unavailable: report": {
       "main": [
         [
           {
-            "node": "Review queue rows",
+            "node": "Combine niches",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine niches": {
+      "main": [
+        [
+          {
+            "node": "Results",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Review queue rows": {
+    "Results": {
       "main": [
         [
           {
-            "node": "Add to Google Sheet",
+            "node": "From the form?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "From the form?": {
+      "main": [
+        [
+          {
+            "node": "Results page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "One row per idea",
             "type": "main",
             "index": 0
           },
@@ -709,23 +1190,29 @@
         ]
       ]
     },
-    "Weekly summary": {
+    "Results page": {
       "main": [
         [
           {
-            "node": "Send to Slack",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Send to Telegram",
+            "node": "Show results",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Nothing new this week": {
+    "One row per idea": {
+      "main": [
+        [
+          {
+            "node": "Add to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly summary": {
       "main": [
         [
           {

@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Niche trend content planner\nFinds the Google searches **rising in your niche**, removes the junk and turns the rest into content ideas: the likely reason it's rising, an angle, a hook, a format and what to fact-check.\n\n### Setup (5 minutes)\n1. **Connect Apify** (it fetches the Google Trends data). If n8n offers to install the Apify node, click **Install**. Then double-click the *Google Trends* node, open **Credential to connect with** and choose **Create new credential**. In the window that opens, click the **sign-in button** and approve in Apify. Nothing to copy.\n   *Self-hosted n8n has no Apify sign-in:* in the node, set *Authentication* to **API Key** first, then in the window paste your token from apify.com (Settings → API & Integrations).\n2. **Connect the AI** (it suggests topics and writes the ideas). Double-click *Gemini model* → **Credential to connect with** → **Create new credential**, and paste a free key from aistudio.google.com. Prefer another AI? Swap the node. No AI at all? Set `useAI` to false in *Defaults* and you get the list of rising searches instead.\n3. **Optional: sheet and messages.** For Way 2, pick your sheet in *Read keyword sheet* and *Add to Google Sheet*. To get a weekly message, turn on *Send to Slack* or *Send to Telegram* and connect it the same way.\n\n### Three ways to use it (labelled Way 1-3 on the canvas)\n**Way 1 · Web form**: activate the workflow and open the *Form* URL, or share it with a client. Only the first question is required; ideas appear on the next page.\n**Way 2 · Google Sheet, every Monday**: one row per topic (`niche`, `keyword`, optional `audience`, `country`, `formats`, `active`). A row with just a niche gets topics suggested.\n**Way 3 · Test run**: edit *Test input* and click **Execute workflow**.",
+        "content": "## Niche trend content planner\nFinds the Google searches **rising in your niche**, removes the junk and turns the rest into content ideas: the likely reason it's rising, an angle, a hook, a format and what to fact-check.\n\n### Setup (5 minutes)\n1. **Connect Apify** (it fetches the Google Trends data). If n8n offers to install the Apify node, click **Install**. Then double-click the *Google Trends* node, open **Credential to connect with** and choose **Create new credential**. In the window that opens, click the **sign-in button** and approve in Apify. Nothing to copy.\n   *Self-hosted n8n has no Apify sign-in:* in the node, set *Authentication* to **API Key** first, then in the window paste your token from apify.com (Settings → API & Integrations).\n2. **Connect the AI** (it reads what people write, plans the search terms and writes the ideas, so it is required). Double-click *Gemini model* → **Credential to connect with** → **Create new credential**, and paste a free key from aistudio.google.com. Prefer another AI? Swap the node and connect it to both *Plan topics* and *Write content ideas*.\n3. **Optional: sheet and messages.** For Way 2, pick your sheet in *Read keyword sheet* and *Add to Google Sheet*. To get a weekly message, turn on *Send to Slack* or *Send to Telegram* and connect it the same way.\n\n### Three ways to use it (labelled Way 1-3 on the canvas)\n**Way 1 · Web form**: activate the workflow and open the *Form* URL, or share it with a client. One free-form question: what they want to make content about, in any words. For a batch, upload a CSV with one row per niche (the form explains it). Ideas appear on the next page.\n**Way 2 · Google Sheet, every Monday**: one row per niche (`niche`, optional `topics` separated by commas, `audience`, `country`, `formats`, `active`). The niche can be written in any words.\n**Way 3 · Test run**: edit *Test input* (write what you'd type in the form) and click **Execute workflow**.",
         "width": 600,
         "height": 940,
         "color": 4
@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "content": "### Inputs → one shape\nEach source has an adapter that outputs the same rows: `keyword, niche, audience, country, timeRange, formats, useAI, source`. An empty keyword means \"suggest keywords for this niche\"; an empty field is filled from *Defaults*. To add Airtable, Notion or a webhook, add one adapter that feeds *Defaults*.\n\nOwner settings (AI on or off, ideas per niche, default country) live in *Defaults*, not on the form: the person filling the form only answers questions about their content.",
+        "content": "### Inputs → one shape\nEach source has an adapter that outputs the same rows: `niche, keyword, audience, country, timeRange, formats, source`. `niche` is what the person wrote, in any words; `keyword` is an optional topic they listed. An empty field is filled from *Defaults*. To add Airtable, Notion or a webhook, add one adapter that feeds *Defaults*.\n\nOwner settings (ideas per niche, how many terms to watch, default country) live in *Defaults*, not on the form.",
         "width": 700,
         "height": 280,
         "color": 7
@@ -35,7 +35,7 @@
     },
     {
       "parameters": {
-        "content": "## Way 1 · Web form\nActivate the workflow, then open or share the *Form* URL. People answer a few questions and see their ideas on the next page.",
+        "content": "## Way 1 · Web form\nActivate the workflow, then open or share the *Form* URL. People write what they want to make content about, in their own words, or upload a CSV with one row per niche, and see their ideas on the next page.",
         "width": 700,
         "height": 260,
         "color": 5
@@ -51,7 +51,7 @@
     },
     {
       "parameters": {
-        "content": "## Way 2 · Google Sheet, every Monday\nOne row per topic in a `Keywords` tab. Ideas land in the `Ideas` tab, with a summary in Slack or Telegram.",
+        "content": "## Way 2 · Google Sheet, every Monday\nOne row per niche in a `Keywords` tab: `niche`, and optionally `topics`, `audience`, `country`. Ideas land in the `Ideas` tab, with a summary in Slack or Telegram.",
         "width": 700,
         "height": 260,
         "color": 5
@@ -67,7 +67,7 @@
     },
     {
       "parameters": {
-        "content": "## Way 3 · Test run\nEdit *Test input*, then click **Execute workflow** to see a result right here.",
+        "content": "## Way 3 · Test run\nWrite in *Test input* what you'd type in the form, then click **Execute workflow** to see a result right here.",
         "width": 700,
         "height": 260,
         "color": 5
@@ -83,23 +83,23 @@
     },
     {
       "parameters": {
-        "content": "### Keywords: suggested when missing\nPeople describe a niche (\"ai product roadmap\") differently from how they search it (\"cursor\", \"vibe coding\"), and described phrases have almost no Google data. So when a niche has fewer than `suggestKeywordsBelow` keywords and AI is on, the AI suggests `suggestedKeywords` searchable ones: products, ingredients, tools, problems. Keywords Google has no data for are simply skipped. The results list every keyword searched and mark the suggestions, so people can keep the good ones. Without AI, a niche with no keywords is searched as written, with a note asking for a few keywords.",
-        "width": 760,
-        "height": 300,
+        "content": "### The AI plans what to watch\n*Plan topics* reads what the person wrote and returns the niche, the audience and about `topicsPerNiche` search terms. Their own topics are judged: **kept** when people already search them, **rewritten** into search terms when they're descriptions (\"retinol for teens\" → retinol, teen acne), **left out** only when off-niche (and named). Then it adds terms people in that niche actually search. People describe a niche differently from how they search it, so this matters: in tests the planned terms found about 6x more rising searches than the words as typed. The results show every term, where it came from, and how many rising searches it found. If the AI is unavailable, what they wrote is split into short terms and searched as it is.",
+        "width": 900,
+        "height": 320,
         "color": 7
       },
-      "id": "a8699e41-2e81-5c07-bf00-7b9db15d0b3a",
-      "name": "Note: keywords",
+      "id": "b3b250ff-5ef4-5c55-aa11-48597b2910ca",
+      "name": "Note: planning",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
         400,
-        -800
+        -880
       ]
     },
     {
       "parameters": {
-        "content": "### How ideas are picked (per niche)\nJunk out (prompt-like searches and generic Breakouts from bot traffic), relevance (AI score 0–10, or word match without AI), variants merged, ranked by growth with a boost for searches rising under several keywords, spread across keywords. Weekly sheet runs never repeat an idea within 8 weeks and flag what's new. Tuning values sit at the top of *Clean and rank*.",
+        "content": "### How ideas are picked (per niche)\nJunk out (prompt-like searches and generic Breakouts from bot traffic), variants merged, ranked by growth with a boost for searches rising under several terms, spread across terms, then the AI scores each one 0–10. Weekly sheet runs never repeat an idea within 8 weeks and flag what's new. Tuning values sit at the top of *Clean and rank*.",
         "width": 520,
         "height": 220,
         "color": 7
@@ -115,7 +115,7 @@
     },
     {
       "parameters": {
-        "content": "### AI or report\nWith AI each niche gets one request: relevance, why rising, title, angle, hook, format and a fact-check list (*Structured Output Parser* keeps fields valid). Without AI, or if the AI call fails, the niche gets the **rising searches report**: the cleaned list with growth, variants and Google Trends links.",
+        "content": "### Ideas, or the list if the AI fails\nEach niche gets one request: relevance, why rising, title, angle, hook, format and a fact-check list (*Structured Output Parser* keeps fields valid). Both AI steps retry 3 times; if the ideas step still fails, the niche gets the **rising searches list** instead, with a note saying why.",
         "width": 520,
         "height": 220,
         "color": 5
@@ -131,7 +131,7 @@
     },
     {
       "parameters": {
-        "content": "### Results\n- **Form:** shown on the results page, with the topics it looked at.\n- **Sheet / test runs:** one row per idea in your sheet (status \"to review\", same columns for ideas and report) and a summary in Slack or Telegram (off until set up).\nNothing is published automatically.",
+        "content": "### Results\n- **Form:** shown on the results page, with the terms it watched and where each came from.\n- **Sheet / test runs:** one row per idea in your sheet (status \"to review\", same columns for ideas and the list) and a summary in Slack or Telegram (off until set up).\nNothing is published automatically.",
         "width": 440,
         "height": 220,
         "color": 6
@@ -154,23 +154,9 @@
             {
               "fieldLabel": "What do you want to make content about?",
               "fieldName": "niche",
-              "fieldType": "text",
-              "requiredField": true,
-              "placeholder": "e.g. skincare for beginners, home espresso, money tips for students"
-            },
-            {
-              "fieldLabel": "Any specific topics you want to cover?",
-              "fieldName": "keywords",
               "fieldType": "textarea",
               "requiredField": false,
-              "placeholder": "Optional. e.g. retinol, acne, morning routine. Leave it empty and we'll find topics for you."
-            },
-            {
-              "fieldLabel": "Who do you want to reach?",
-              "fieldName": "audience",
-              "fieldType": "text",
-              "requiredField": false,
-              "placeholder": "Optional. e.g. people new to skincare who want simple advice"
+              "placeholder": "In any words, e.g. \"home espresso\" or \"skincare for beginners, mostly retinol and acne scars\""
             },
             {
               "fieldLabel": "Where do you want to post?",
@@ -293,7 +279,14 @@
               }
             },
             {
-              "fieldLabel": "Want ideas for several niches at once? Upload a CSV",
+              "fieldLabel": "Bulk upload help",
+              "fieldName": "bulkHelp",
+              "fieldType": "html",
+              "requiredField": false,
+              "html": "<p><strong>Several niches at once?</strong> Upload a CSV with <strong>one row per niche</strong>. Only <code>niche</code> is needed, written any way you like. You can add <code>topics</code> (separated by commas), <code>audience</code> and <code>country</code> (two-letter code). Each niche gets its own ideas.</p><pre>niche,topics,country<br>skincare for beginners,\"retinol, acne scars\",US<br>home espresso,,US</pre><p><a href=\"https://raw.githubusercontent.com/lakshay-jainn/n8n-niche-trend-content-planner/main/bulk_template.csv\" target=\"_blank\">Download a template</a>. It takes about 2 minutes per niche, so for more than 5 the Google Sheet version is a better fit.</p>"
+            },
+            {
+              "fieldLabel": "Your CSV file",
               "fieldName": "csv",
               "fieldType": "file",
               "requiredField": false,
@@ -321,7 +314,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Web form -> rows. The niche is required; keywords are optional (typed and/or a CSV with columns niche, keyword,\n// audience, country: one upload can plan several niches). Questions left empty are filled from Defaults.\nconst f = $input.first();\nconst j = f.json;\nconst get = (...names) => { for (const n of names) if (j[n] !== undefined && j[n] !== '') return j[n]; return ''; };\nconst TIME = { 'Last 7 days': 'now 7-d', 'Last 30 days': 'today 1-m', 'Last 3 months': 'today 3-m', 'Last 12 months': 'today 12-m' };\nconst timeOf = v => { const k = Object.keys(TIME).find(t => String(v || '').startsWith(t)); return k ? TIME[k] : null; };\n// \"Worldwide\" = '' (explicit); nothing chosen = null (Defaults); \"India (IN)\" or \"IN\" = the code\nconst countryOf = v => { const s = String(v || '').trim(); if (!s) return null; if (/^worldwide$/i.test(s)) return '';\n  const m = s.match(/\\(([A-Z]{2})\\)\\s*$/); return m ? m[1] : (/^[A-Za-z]{2}$/.test(s) ? s.toUpperCase() : null); };\nconst formats = [].concat(get('formats', 'Where do you want to post?') || []).join(', ').toLowerCase() || null;\nconst base = {\n  niche: String(get('niche', 'What do you want to make content about?')).trim(),\n  audience: String(get('audience', 'Who do you want to reach?')).trim(),\n  country: countryOf(get('country', 'Where do you want to reach people?')),\n  timeRange: timeOf(get('timeRange', 'How recent should the trends be?')),\n  formats, useAI: null, source: 'form',\n};\nconst rows = String(get('keywords', 'Any specific topics you want to cover?')).split(/[\\n,;]+/).map(k => k.trim())\n  .filter(Boolean).map(keyword => ({ ...base, keyword }));\n\n// optional CSV upload\nconst file = Object.keys(f.binary || {})[0];\nif (file) {\n  const text = (await this.helpers.getBinaryDataBuffer(0, file)).toString('utf8').replace(/^﻿/, '');\n  const lines = text.split(/\\r?\\n/).filter(l => l.trim());\n  const sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';\n  const cells = l => { const out = []; let cur = '', q = false;\n    for (let i = 0; i < l.length; i++) { const c = l[i];\n      if (q) { if (c === '\"' && l[i + 1] === '\"') { cur += '\"'; i++; } else if (c === '\"') q = false; else cur += c; }\n      else if (c === '\"') q = true; else if (c === sep) { out.push(cur); cur = ''; } else cur += c; }\n    out.push(cur); return out.map(x => x.trim()); };\n  const head = cells(lines[0]).map(h => h.toLowerCase());\n  const col = names => head.findIndex(h => names.includes(h));\n  const ki = col(['keyword', 'keywords', 'search term', 'term', 'query']);\n  const ni = col(['niche', 'topic', 'group']), ai = col(['audience']), ci = col(['country', 'geo']);\n  if (ki < 0 && ni < 0) throw new Error('The CSV needs a \"niche\" or a \"keyword\" column (optional: audience, country).');\n  for (const l of lines.slice(1)) {\n    const c = cells(l);\n    const keyword = ki >= 0 ? c[ki] || '' : '';\n    const niche = (ni >= 0 && c[ni]) || base.niche;\n    if (!keyword && !(ni >= 0 && c[ni])) continue;\n    rows.push({ ...base, keyword, niche,\n      audience: (ai >= 0 && c[ai]) || base.audience,\n      country: ci >= 0 && c[ci] ? countryOf(c[ci]) ?? base.country : base.country });\n  }\n}\n// just a niche: AI suggests keywords for it (or, without AI, the niche itself is searched)\nif (!rows.length) rows.push({ ...base, keyword: '' });\nreturn rows.map(json => ({ json }));"
+        "jsCode": "// Web form -> rows. One free-form answer (niche, topics, audience in any words) and/or a CSV for several niches\n// (one row per niche: niche, topics, audience, country). Questions left empty are filled from Defaults.\nconst f = $input.first();\nconst j = f.json;\nconst get = (...names) => { for (const n of names) if (j[n] !== undefined && j[n] !== '') return j[n]; return ''; };\nconst TIME = { 'Last 7 days': 'now 7-d', 'Last 30 days': 'today 1-m', 'Last 3 months': 'today 3-m', 'Last 12 months': 'today 12-m' };\nconst timeOf = v => { const k = Object.keys(TIME).find(t => String(v || '').startsWith(t)); return k ? TIME[k] : null; };\n// \"Worldwide\" = '' (explicit); nothing chosen = null (Defaults); \"India (IN)\" or \"IN\" = the code\nconst countryOf = v => { const s = String(v || '').trim(); if (!s) return null; if (/^worldwide$/i.test(s)) return '';\n  const m = s.match(/\\(([A-Z]{2})\\)\\s*$/); return m ? m[1] : (/^[A-Za-z]{2}$/.test(s) ? s.toUpperCase() : null); };\nconst splitTopics = v => String(v || '').split(/[,;|\\n]+/).map(t => t.trim()).filter(Boolean);\n// one bulk row -> one planner row per topic it lists (or one row for a niche with no topics)\nconst bulkRows = (row, base) => {\n  const niche = String(row.niche || row.topic || row.group || '').trim() || base.niche;\n  const topics = [...splitTopics(row.topics || row.subtopics), ...splitTopics(row.keyword || row.keywords || row.term)];\n  if (!niche && !topics.length) return [];\n  return (topics.length ? topics : ['']).map(keyword => ({ ...base, niche, keyword,\n    audience: String(row.audience || '').trim() || base.audience || '',\n    country: row.country ? (countryOf(row.country) ?? base.country) : base.country,\n    formats: row.formats || row['publish on'] || row.platforms || base.formats || null }));\n};\nconst formats = [].concat(get('formats', 'Where do you want to post?') || []).join(', ').toLowerCase() || null;\nconst base = {\n  niche: String(get('niche', 'What do you want to make content about?')).trim(),\n  audience: '',\n  country: countryOf(get('country', 'Where do you want to reach people?')),\n  timeRange: timeOf(get('timeRange', 'How recent should the trends be?')),\n  formats, source: 'form',\n};\nconst rows = [];\n\n// optional CSV upload: one row per niche\nconst file = Object.keys(f.binary || {})[0];\nif (file) {\n  const text = (await this.helpers.getBinaryDataBuffer(0, file)).toString('utf8').replace(/^﻿/, '');\n  const lines = text.split(/\\r?\\n/).filter(l => l.trim());\n  const sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ';' : ',';\n  const cells = l => { const out = []; let cur = '', q = false;\n    for (let i = 0; i < l.length; i++) { const c = l[i];\n      if (q) { if (c === '\"' && l[i + 1] === '\"') { cur += '\"'; i++; } else if (c === '\"') q = false; else cur += c; }\n      else if (c === '\"') q = true; else if (c === sep) { out.push(cur); cur = ''; } else cur += c; }\n    out.push(cur); return out.map(x => x.trim()); };\n  const head = cells(lines[0]).map(h => h.toLowerCase());\n  if (!head.some(h => ['niche', 'topic', 'group', 'keyword', 'keywords', 'topics'].includes(h)))\n    throw new Error('The CSV needs a \"niche\" column (one row per niche), and optionally topics, audience, country.');\n  for (const l of lines.slice(1)) {\n    const c = cells(l);\n    rows.push(...bulkRows(Object.fromEntries(head.map((h, i) => [h, c[i] || ''])), { ...base, niche: '' }));\n  }\n}\n// what they typed is one more niche, unless the CSV already has it\nif (base.niche && !rows.some(r => r.niche.toLowerCase() === base.niche.toLowerCase())) rows.unshift({ ...base, keyword: '' });\nif (!rows.length) throw new Error('Tell us what you want to make content about, or upload a CSV with a \"niche\" column.');\nreturn rows.map(json => ({ json }));"
       },
       "id": "cbaa56da-4708-5e50-9bca-992384b7f0d1",
       "name": "From form",
@@ -380,7 +373,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Google Sheet -> rows. Columns (any order, any case):\n//   niche (required) · keyword (leave empty to let AI suggest keywords for that niche) · audience · country ·\n//   formats (where you publish) · active (\"no\" pauses the row)\n// Rows without a niche are skipped and reported in the summary.\nconst rows = [], skipped = [];\nfor (const { json: r } of $input.all()) {\n  const row = Object.fromEntries(Object.entries(r).map(([k, v]) => [String(k).trim().toLowerCase(), String(v ?? '').trim()]));\n  const keyword = row.keyword || row.keywords || row.term || '';\n  if (!keyword && !row.niche) continue; // an empty line\n  if (/^(no|false|0|off|paused)$/i.test(row.active || '')) continue;\n  if (!row.niche) { skipped.push(keyword); continue; }\n  // null = not given here: filled from Defaults\n  rows.push({ keyword, niche: row.niche, audience: row.audience || '', country: row.country ? row.country.toUpperCase() : null,\n    timeRange: null, formats: row.formats || row['publish on'] || row.platforms || null, useAI: null, source: 'sheet', skipped });\n}\nif (!rows.length) throw new Error('No usable rows in the keyword sheet: it needs a \"niche\" column (and keywords, or AI on).');\nreturn rows.map(json => ({ json }));"
+        "jsCode": "// Google Sheet -> rows. Same shape as the form's CSV, one row per niche (any order, any case):\n//   niche (required, any words) · topics (optional, separated by commas) · audience · country · formats ·\n//   active (\"no\" pauses the row). A \"keyword\" column with one topic per row works too.\n// Rows without a niche are skipped and reported in the summary.\nconst countryOf = v => /^[A-Za-z]{2}$/.test(String(v || '').trim()) ? String(v).trim().toUpperCase() : null;\nconst splitTopics = v => String(v || '').split(/[,;|\\n]+/).map(t => t.trim()).filter(Boolean);\n// one bulk row -> one planner row per topic it lists (or one row for a niche with no topics)\nconst bulkRows = (row, base) => {\n  const niche = String(row.niche || row.topic || row.group || '').trim() || base.niche;\n  const topics = [...splitTopics(row.topics || row.subtopics), ...splitTopics(row.keyword || row.keywords || row.term)];\n  if (!niche && !topics.length) return [];\n  return (topics.length ? topics : ['']).map(keyword => ({ ...base, niche, keyword,\n    audience: String(row.audience || '').trim() || base.audience || '',\n    country: row.country ? (countryOf(row.country) ?? base.country) : base.country,\n    formats: row.formats || row['publish on'] || row.platforms || base.formats || null }));\n};\nconst rows = [], skipped = [];\nfor (const { json: r } of $input.all()) {\n  const row = Object.fromEntries(Object.entries(r).map(([k, v]) => [String(k).trim().toLowerCase(), String(v ?? '').trim()]));\n  if (/^(no|false|0|off|paused)$/i.test(row.active || '')) continue;\n  if (!row.niche) { const t = row.topics || row.keyword || row.keywords || ''; if (t) skipped.push(t); continue; }\n  // null = not given here: filled from Defaults\n  rows.push(...bulkRows(row, { niche: '', audience: '', country: null, timeRange: null, formats: null, source: 'sheet' })\n    .map(x => ({ ...x, skipped })));\n}\nif (!rows.length) throw new Error('No usable rows in the sheet: it needs a \"niche\" column (one row per niche).');\nreturn rows.map(json => ({ json }));"
       },
       "id": "378d9287-7a44-5e80-ba6d-cac646a177e7",
       "name": "From sheet",
@@ -407,21 +400,9 @@
         "assignments": {
           "assignments": [
             {
-              "id": "24104335-2db3-5a80-b3b8-bcfdd4391575",
-              "name": "niche",
-              "value": "skincare for beginners",
-              "type": "string"
-            },
-            {
-              "id": "8de434fe-cf34-523e-8eb8-63d20f4afaba",
-              "name": "keywords",
-              "value": "retinol, sunscreen, niacinamide, hyaluronic acid, vitamin c serum, skin cycling",
-              "type": "string"
-            },
-            {
-              "id": "5256ce45-0008-5cc4-a08b-f82430665e32",
-              "name": "audience",
-              "value": "people new to skincare who want simple, honest advice",
+              "id": "fe08c589-af93-5f34-a395-6befdd1734b4",
+              "name": "contentAbout",
+              "value": "skincare for beginners who want simple, honest advice. Mostly retinol, sunscreen and niacinamide, and how to deal with acne scars",
               "type": "string"
             },
             {
@@ -445,7 +426,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// \"Run it now\" test input -> rows (keywords optional, like the form).\nconst m = $input.first().json;\nconst base = { niche: m.niche, audience: m.audience || '', country: m.country == null ? null : String(m.country).toUpperCase(),\n  timeRange: null, formats: null, useAI: null, source: 'manual' };\nconst keywords = String(m.keywords || '').split(/[\\n,;]+/).map(k => k.trim()).filter(Boolean);\nreturn (keywords.length ? keywords : ['']).map(keyword => ({ json: { ...base, keyword } }));"
+        "jsCode": "// \"Run it now\" test input -> one row: what you'd type in the form's first box.\nconst m = $input.first().json;\nreturn [{ json: { niche: String(m.contentAbout || '').trim(), keyword: '', audience: '',\n  country: m.country == null ? null : String(m.country).toUpperCase(), timeRange: null, formats: null, source: 'manual' } }];"
       },
       "id": "5d5f55a2-f42b-596a-98ca-294143d1e171",
       "name": "From test input",
@@ -461,12 +442,6 @@
         "assignments": {
           "assignments": [
             {
-              "id": "e11be218-68fa-5551-86c8-a0767638dbdc",
-              "name": "useAI",
-              "value": true,
-              "type": "boolean"
-            },
-            {
               "id": "cd667bd8-22d7-5761-9a68-371eab6e565f",
               "name": "ideasPerNiche",
               "value": 10,
@@ -479,15 +454,15 @@
               "type": "number"
             },
             {
-              "id": "2df1a8b8-369e-542a-934e-c7683582284c",
-              "name": "suggestKeywordsBelow",
-              "value": 3,
+              "id": "e8b3efd7-23d4-5228-b4a4-a603c72b2c38",
+              "name": "topicsPerNiche",
+              "value": 8,
               "type": "number"
             },
             {
-              "id": "b8504cb8-fd57-59cb-aab8-f5d950534e75",
-              "name": "suggestedKeywords",
-              "value": 8,
+              "id": "e88ec187-7ca2-55f3-b889-51b44f22b928",
+              "name": "maxTopicsPerNiche",
+              "value": 12,
               "type": "number"
             },
             {
@@ -536,7 +511,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Rows -> one item per niche (+ country + time range) with its keywords. What an input didn't give (null) comes from\n// Defaults; an explicit value (even \"worldwide\" = '') is kept. A niche with few keywords is marked for AI suggestions.\nconst d = $('Defaults').first().json;\nconst useAIDefault = d.useAI === true;\nconst suggestBelow = Number(d.suggestKeywordsBelow ?? 3);\nconst rows = $input.all().map(({ json: r }) => ({ ...r,\n  keyword: String(r.keyword || '').trim(),\n  country: r.country ?? d.defaultCountry ?? '',\n  timeRange: r.timeRange ?? d.defaultTimeRange,\n  formats: r.formats || d.defaultFormats,\n  useAI: r.useAI ?? useAIDefault }));\nconst groups = new Map();\nfor (const r of rows) {\n  if (!r.niche) throw new Error(`\"${r.keyword}\" has no niche. Every keyword needs a niche (what you make content about).`);\n  const group = `${r.niche.toLowerCase()}|${r.country}|${r.timeRange}`;\n  const g = groups.get(group) ?? { group, niche: r.niche, audience: '', country: r.country, timeRange: r.timeRange,\n    formats: new Set(), useAI: r.useAI, source: r.source, skipped: r.skipped || [], keywords: [] };\n  if (!g.audience && r.audience) g.audience = r.audience;\n  String(r.formats).split(',').map(s => s.trim()).filter(Boolean).forEach(x => g.formats.add(x));\n  if (r.keyword && !g.keywords.some(k => k.toLowerCase() === r.keyword.toLowerCase())) g.keywords.push(r.keyword);\n  groups.set(group, g);\n}\nconst max = Number(d.maxKeywordsPerRun) || 300;\nconst total = [...groups.values()].reduce((s, g) => s + g.keywords.length, 0);\nif (total > max) throw new Error(`This run has ${total} keywords; the limit is ${max} (maxKeywordsPerRun in Defaults).`);\nreturn [...groups.values()].map((g, i) => {\n  const out = { ...g, id: `K${i + 1}`, formats: [...g.formats].join(', '), suggested: [], keywordNote: '',\n    needsKeywords: g.useAI && g.keywords.length < suggestBelow };\n  if (!out.needsKeywords && !g.keywords.length) {\n    // without AI, a niche with no keywords is searched as written; that finds little, so say so\n    out.keywords = [g.niche];\n    out.keywordNote = \"You didn't add any topics, so we searched your niche as written. Add 3-5 specific topics \"\n      + '(products, ingredients, tools, common problems) for much better ideas.';\n  }\n  return { json: out };\n});"
+        "jsCode": "// Rows -> one item per niche (+ country + time range): what the person wrote, plus any topics they listed. What an input\n// didn't give (null) comes from Defaults; an explicit value (even \"worldwide\" = '') is kept.\nconst d = $('Defaults').first().json;\nconst rows = $input.all().map(({ json: r }) => ({ ...r,\n  niche: String(r.niche || '').trim(),\n  keyword: String(r.keyword || '').trim(),\n  country: r.country ?? d.defaultCountry ?? '',\n  timeRange: r.timeRange ?? d.defaultTimeRange,\n  formats: r.formats || d.defaultFormats }));\nconst groups = new Map();\nfor (const r of rows) {\n  if (!r.niche) throw new Error(`\"${r.keyword}\" has no niche. Every topic needs a niche (what you want to make content about).`);\n  const group = `${r.niche.toLowerCase()}|${r.country}|${r.timeRange}`;\n  const g = groups.get(group) ?? { group, about: r.niche, niche: r.niche, audience: '', country: r.country,\n    timeRange: r.timeRange, formats: new Set(), source: r.source, skipped: r.skipped || [], given: [] };\n  if (!g.audience && r.audience) g.audience = r.audience;\n  String(r.formats).split(',').map(s => s.trim()).filter(Boolean).forEach(x => g.formats.add(x));\n  if (r.keyword && !g.given.some(k => k.toLowerCase() === r.keyword.toLowerCase())) g.given.push(r.keyword);\n  groups.set(group, g);\n}\nconst max = Number(d.maxKeywordsPerRun) || 300;\nconst perNiche = Math.max(Number(d.maxTopicsPerNiche) || 12, 1);\nif (groups.size * perNiche > max) throw new Error(`This run could search up to ${groups.size * perNiche} topics; `\n  + `the limit is ${max} (maxKeywordsPerRun in Defaults). Plan fewer niches at once.`);\nreturn [...groups.values()].map((g, i) => ({ json: { ...g, id: `K${i + 1}`, formats: [...g.formats].join(', ') } }));"
       },
       "id": "7b7c5605-ea06-5cd6-b5be-586977664d48",
       "name": "Group by niche",
@@ -549,50 +524,15 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "loose",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "81f011e3-3d82-57a4-b837-b647b8791d12",
-              "leftValue": "={{ $json.needsKeywords === true }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "looseTypeValidation": true,
-        "options": {}
+        "jsCode": "// The AI reads what the person wrote (any words) and plans the search terms to watch. A search term is a seed: Google\n// reports what rises around it, so a good one is a concrete thing people search all the time. People describe a niche\n// (\"ai product roadmap\") differently from how they search it (\"cursor\", \"vibe coding\"), and described phrases have\n// almost no Google data, so their own topics are judged: kept when searchable, turned into search terms when not.\nconst d = $('Defaults').first().json;\nconst want = Math.max(3, Number(d.topicsPerNiche) || 8);\nconst max = Math.max(want, Number(d.maxTopicsPerNiche) || 12);\nreturn $input.all().map(({ json: g }) => ({ json: { ...g, prompt: [\n  `Someone wants content ideas from what is rising on Google. This is what they wrote, between the lines:`,\n  `---`, g.about, `---`,\n  g.given.length ? `Topics they listed: ${g.given.map(t => `\"${t}\"`).join(', ')}.` : null,\n  g.audience ? `Who it's for, as they put it: ${g.audience}.` : null,\n  `Country: ${g.country || 'worldwide'}.`,\n  ``,\n  `Return:`,\n  `- niche: their niche in 2 to 6 plain words, e.g. \"skincare for beginners\".`,\n  `- audience: who it's for, if they said so or it's clearly implied; otherwise \"\".`,\n  `- topics: the search terms to watch on Google Trends for them, about ${want} and never more than ${max}.`,\n  `  First judge every topic they mentioned, in what they wrote or in the list:`,\n  `  - \"kept\": it is already something people type into Google (1 to 3 words, concrete: a product, brand, ingredient, tool, technique or problem). Keep it exactly as they wrote it.`,\n  `  - \"rewritten\": it's a description or a long phrase (\"retinol for teens\", \"how PMs should prototype with AI\"). Turn it into the 1 or 2 search terms that carry what they meant (\"retinol\", \"teen acne\"), and put their words in \"from\".`,\n  `  - leave a topic out only when it has nothing to do with their niche, and list it in \"dropped\" with a short reason.`,\n  `  Then add \"added\" terms until there are about ${want}: what this audience actually searches, a mix of core topics, popular products or brands, and common problems.`,\n  `  Every term: plain search language, 1 to 3 words, searched often enough to have Google data in this country. Never a description of the niche and never the niche name itself.`,  ``,\n  `Set \"nicheId\" to \"${g.id}\".`,\n].filter(l => l !== null).join('\\n') } }));"
       },
-      "id": "67c7f6a8-1778-5821-a2ca-0bccf985e292",
-      "name": "Suggest keywords?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        620,
-        -220
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Few or no keywords: ask the AI for searchable ones. People describe a niche (\"ai product roadmap\") differently from\n// how they search it (\"cursor\", \"vibe coding\"); described phrases have almost no Google data, so the rules matter.\nconst d = $('Defaults').first().json;\nconst want = Math.max(3, Number(d.suggestedKeywords) || 8);\nreturn $input.all().map(({ json: g }) => ({ json: { ...g, prompt: [\n  `I make content about: ${g.niche}.`,\n  g.audience ? `My audience: ${g.audience}.` : null,\n  `Country: ${g.country || 'worldwide'}.`,\n  g.keywords.length ? `Keywords I already track: ${g.keywords.join(', ')}.` : null,\n  ``,\n  `Suggest ${want} keywords to track on Google Trends for this niche. Each one must be:`,\n  `- something my audience actually types into Google: 1 to 3 words in plain search language, like \"retinol\", \"walking pad\" or \"steam wishlist\";`,\n  `- a specific part of the niche: a product or brand, an ingredient or tool, a technique, or a common problem;`,\n  `- searched often enough to have Google data in this country;`,\n  `- not a description of the niche (like \"ai product roadmap\" or \"beginner skincare tips\"), not my niche name, and not one of my keywords.`,\n  `Mix them: some core topics, some popular products or brands, some problems people search for.`,\n  ``,\n  `Set \"nicheId\" to \"${g.id}\".`,\n].filter(l => l !== null).join('\\n') } }));"
-      },
-      "id": "6648948c-14f1-591f-a7c7-70e5d51066b1",
-      "name": "Ask for keyword ideas",
+      "id": "c051f7f4-3ff2-52fd-babd-89dc263b276a",
+      "name": "Ask AI to plan topics",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        840,
-        -400
+        620,
+        -220
       ]
     },
     {
@@ -604,19 +544,19 @@
           "messageValues": [
             {
               "type": "SystemMessagePromptTemplate",
-              "message": "You are a search researcher. You know how ordinary people phrase Google searches in a niche, and you suggest the short, concrete terms they type, never marketing language."
+              "message": "You are a search researcher. You read what a creator wants, in whatever words they use, and turn it into the short, concrete terms ordinary people type into Google. You respect their topics: you keep the ones that are already searchable and translate the rest, and you never use marketing language."
             }
           ]
         },
         "batching": {}
       },
-      "id": "c70f170e-2086-5da5-ac47-4e7f79c9f111",
-      "name": "Suggest keywords",
+      "id": "1844dc6d-a932-585b-9bdb-6977fd6e68da",
+      "name": "Plan topics",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        1060,
-        -400
+        860,
+        -220
       ],
       "onError": "continueErrorOutput",
       "retryOnFail": true,
@@ -626,67 +566,67 @@
     {
       "parameters": {
         "schemaType": "manual",
-        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"nicheId\": {\n      \"type\": \"string\"\n    },\n    \"keywords\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\n    \"nicheId\",\n    \"keywords\"\n  ]\n}",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"nicheId\": {\n      \"type\": \"string\"\n    },\n    \"niche\": {\n      \"type\": \"string\"\n    },\n    \"audience\": {\n      \"type\": \"string\"\n    },\n    \"topics\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"term\": {\n            \"type\": \"string\"\n          },\n          \"status\": {\n            \"type\": \"string\",\n            \"enum\": [\n              \"kept\",\n              \"rewritten\",\n              \"added\"\n            ]\n          },\n          \"from\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"term\",\n          \"status\"\n        ]\n      }\n    },\n    \"dropped\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"text\": {\n            \"type\": \"string\"\n          },\n          \"reason\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"text\",\n          \"reason\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"nicheId\",\n    \"niche\",\n    \"audience\",\n    \"topics\"\n  ]\n}",
         "autoFix": false
       },
-      "id": "474a7b5f-74af-5bf0-87ab-d56e7a29131b",
-      "name": "Keyword list",
+      "id": "870938b2-c282-5e3b-af0d-32982ccac5ad",
+      "name": "Topic plan",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        1180,
-        -180
+        980,
+        0
       ]
     },
     {
       "parameters": {
-        "jsCode": "// The AI's suggestions, added to the niche's keywords (matched back by the id it echoes).\nconst d = $('Defaults').first().json;\nconst want = Math.max(3, Number(d.suggestedKeywords) || 8);\nconst asked = $('Ask for keyword ideas').all().map(p => p.json);\nconst clean = k => String(k || '').trim().replace(/^[\"'“”]+|[\"'“”.]+$/g, '').replace(/\\s+/g, ' ').toLowerCase();\nreturn $input.all().map((item, i) => {\n  const out = item.json.output || {};\n  const g = asked.find(p => p.id === out.nicheId) ?? asked[item.pairedItem?.item] ?? asked[i];\n  const have = new Set([...g.keywords.map(k => k.toLowerCase()), g.niche.toLowerCase()]);\n  const suggested = [...new Set((out.keywords || []).map(clean))]\n    .filter(k => k && k.split(' ').length <= 4 && !have.has(k)).slice(0, want);\n  const { prompt, ...rest } = g;\n  const keywords = [...g.keywords, ...suggested];\n  return { json: { ...rest, keywords: keywords.length ? keywords : [g.niche], suggested,\n    keywordNote: keywords.length ? '' : \"We couldn't find topics to suggest, so we searched your niche as written.\" } };\n});"
+        "jsCode": "// The AI's plan -> the niche's name, audience and search terms, with where each term came from (shown in the results).\nconst d = $('Defaults').first().json;\nconst max = Math.max(Math.max(3, Number(d.topicsPerNiche) || 8), Number(d.maxTopicsPerNiche) || 12);\nconst asked = $('Ask AI to plan topics').all().map(p => p.json);\nconst clean = k => String(k || '').trim().replace(/^[\"'“”]+|[\"'“”.]+$/g, '').replace(/\\s+/g, ' ').toLowerCase();\nreturn $input.all().map((item, i) => {\n  const out = item.json.output || {};\n  const g = asked.find(p => p.id === out.nicheId) ?? asked[item.pairedItem?.item] ?? asked[i];\n  const niche = String(out.niche || '').trim() || g.about;\n  const origin = {}, keywords = [];\n  for (const t of out.topics || []) {\n    const term = clean(t.term);\n    if (!term || term.split(' ').length > 4 || term === niche.toLowerCase() || origin[term]) continue;\n    origin[term] = t.status === 'rewritten' && t.from ? `from \"${String(t.from).trim()}\"` : t.status === 'kept' ? 'yours' : 'added';\n    keywords.push(term);\n  }\n  const dropped = (out.dropped || []).filter(x => x && x.text).map(x => `${x.text} (${x.reason || 'not about this niche'})`);\n  const { prompt, ...rest } = g;\n  return { json: { ...rest, niche, audience: String(out.audience || '').trim() || g.audience,\n    keywords: (keywords.length ? keywords : [g.about]).slice(0, max), topicOrigin: origin,\n    keywordNote: dropped.length ? `We left out: ${dropped.join('; ')}.` : '' } };\n});"
       },
-      "id": "ac08e837-47f6-535d-b9de-88df21f8655d",
-      "name": "Add suggested keywords",
+      "id": "5a3c61b4-f13e-5fb3-8306-36c031b1d987",
+      "name": "Use planned topics",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1320,
-        -460
+        1160,
+        -320
       ]
     },
     {
       "parameters": {
-        "jsCode": "const reasonFor = error => { const raw = String(error?.message || error || 'unknown error');\n  return /402|payment|credit|billing|prepay|exhausted/i.test(raw) ? 'the AI account is out of credit'\n    : /bad request|api key|401|403|permission|credential/i.test(raw) ? 'the AI key or model name needs checking'\n    : /429|quota|rate/i.test(raw) ? 'the AI service is busy, try again soon' : raw.slice(0, 120); };\n\n// Keyword suggestions failed: carry on with what the user gave (or the niche name), and say why.\nreturn $input.all().map(item => {\n  const { prompt, error, ...g } = item.json;\n  const used = g.keywords.length ? 'only used the topics you gave' : 'searched your niche as written';\n  return { json: { ...g, keywords: g.keywords.length ? g.keywords : [g.niche],\n    keywordNote: `We couldn't suggest topics this time (${reasonFor(error)}), so we ${used}. `\n      + 'Add 3-5 specific topics (products, ingredients, tools, common problems) for better ideas.' } };\n});"
+        "jsCode": "const reasonFor = error => { const raw = String(error?.message || error || 'unknown error');\n  return /402|payment|credit|billing|prepay|exhausted/i.test(raw) ? 'the AI account is out of credit'\n    : /bad request|api key|401|403|permission|credential/i.test(raw) ? 'the AI key or model name needs checking'\n    : /429|quota|rate/i.test(raw) ? 'the AI service is busy, try again soon' : raw.slice(0, 120); };\n\n// The planner failed: search what the person wrote, split into short terms (their listed topics first), and say why.\nreturn $input.all().map(item => {\n  const { prompt, error, ...g } = item.json;\n  // split on punctuation and joining words, drop lead-ins (\"how to deal with\", \"I post videos about\"), keep short parts\n  const LEAD = /^(i|we)\\s+(make|post|run|write|create|do)\\b.*?\\babout\\s+|^(mostly|especially|including|like|also|plus|how to( deal with| get rid of)?|tips (on|for)|want to cover|cover)\\s+/i;\n  const segments = g.about.split(/[\\n,;:.!?()]+|\\b(?:and|or|mostly|especially|including|such as)\\b/i)\n    .map(s => (s || '').trim().replace(LEAD, '').replace(LEAD, '').trim().toLowerCase()).filter(Boolean);\n  const parts = segments.filter(s => s.split(/\\s+/).length <= 4);\n  const keywords = [...new Set([...g.given.map(k => k.toLowerCase()), ...parts])];\n  const first = segments[0] || g.about;\n  return { json: { ...g, niche: first.split(/\\s+/).length <= 6 ? first : `${first.split(/\\s+/).slice(0, 5).join(' ')}...`,\n    keywords: keywords.length ? keywords : [first.split(/\\s+/).slice(0, 4).join(' ')], topicOrigin: {},\n    keywordNote: `We couldn't plan topics with AI this time (${reasonFor(error)}), so we searched what you wrote as it is. `\n      + 'Results are usually much better when the AI can plan them.' } };\n});"
       },
-      "id": "63191ea4-c4f5-5ebb-b2ac-f98a0da98ac4",
-      "name": "Keep given keywords",
+      "id": "ec0fb567-245f-5927-b0cb-f329dadcc0c8",
+      "name": "Plan without AI",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1320,
-        -300
+        1160,
+        -120
       ]
     },
     {
       "parameters": {
-        "numberInputs": 3
+        "numberInputs": 2
       },
       "id": "d1880ba6-6158-5ed6-bbd6-c6fd155ce773",
       "name": "All niches",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1540,
+        1400,
         -220
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Niches -> Google Trends jobs, in chunks of 40 keywords so each call stays short.\nconst CHUNK = 40;\nconst jobs = [];\nfor (const { json: g } of $input.all()) {\n  const { needsKeywords, ...niche } = g;\n  for (let i = 0; i < g.keywords.length; i += CHUNK)\n    jobs.push({ ...niche, keywordsUsed: g.keywords, keywords: g.keywords.slice(i, i + CHUNK) });\n}\nreturn jobs.map(json => ({ json }));"
+        "jsCode": "// Niches -> Google Trends jobs, in chunks of 40 keywords so each call stays short. Two requests the AI read as the same\n// niche (the typed answer and CSV rows, say) become one, so the results don't show it twice.\nconst CHUNK = 40;\nconst byName = new Map();\nfor (const { json: g } of $input.all()) {\n  const key = `${g.niche.toLowerCase()}|${g.country}|${g.timeRange}`;\n  const same = byName.get(key);\n  if (!same) { byName.set(key, { ...g, keywords: [...g.keywords], topicOrigin: { ...g.topicOrigin } }); continue; }\n  for (const k of g.keywords) if (!same.keywords.includes(k)) { same.keywords.push(k); same.topicOrigin[k] = g.topicOrigin[k]; }\n  same.keywordNote = [same.keywordNote, g.keywordNote].filter(Boolean).join(' ');\n  if (!same.audience) same.audience = g.audience;\n  if (g.about.length > same.about.length) same.about = g.about; // keep the fullest description of what they want\n}\n// Bulk runs: niches with the same country and time range share Google Trends calls (whole niches packed into calls of\n// up to 40 terms), so ten niches take a few calls instead of ten. Collect routes each term's results back to its niches.\nconst jobs = [];\nfor (const g of byName.values()) {\n  const niche = { ...g, keywordsUsed: g.keywords.slice(0, CHUNK) };\n  const open = jobs.find(j => j.country === g.country && j.timeRange === g.timeRange\n    && new Set([...j.keywords, ...niche.keywordsUsed]).size <= CHUNK);\n  if (open) { open.niches.push(niche); open.keywords = [...new Set([...open.keywords, ...niche.keywordsUsed])]; }\n  else jobs.push({ country: g.country, timeRange: g.timeRange, keywords: [...niche.keywordsUsed], niches: [niche] });\n}\nreturn jobs.map(json => ({ json }));"
       },
       "id": "ad87ab85-2381-5c14-8fe1-a51087c69ef0",
       "name": "Build jobs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1760,
+        1620,
         -220
       ]
     },
@@ -743,7 +683,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One job's Google Trends results -> one row per rising search or topic, tagged with the job.\n// Keywords Google has no data for are kept as \"noData\" rows, so the summary can name them.\nconst job = $('Loop over jobs').first().json;\nconst tag = { group: job.group, niche: job.niche, audience: job.audience, country: job.country, timeRange: job.timeRange,\n  formats: job.formats, useAI: job.useAI, source: job.source, skipped: job.skipped,\n  keywordsUsed: job.keywordsUsed, suggested: job.suggested, keywordNote: job.keywordNote };\nconst growthNumber = g => /breakout/i.test(g || '') ? 5000 : (parseInt(String(g || '').replace(/[^0-9]/g, ''), 10) || 0);\nconst rows = [];\nfor (const { json: k } of $input.all()) {\n  if (!['complete', 'partial'].includes(k.status)) { rows.push({ ...tag, noData: true, seed: k.keyword }); continue; }\n  for (const q of k.relatedQueries?.rising || [])\n    rows.push({ ...tag, seed: k.keyword, kind: 'search', text: q.query, topicType: '', growth: q.growth || '', growthNumber: growthNumber(q.growth) });\n  for (const t of k.relatedTopics?.rising || [])\n    rows.push({ ...tag, seed: k.keyword, kind: 'topic', text: t.title, topicType: /^topic$/i.test(t.type || '') ? '' : (t.type || ''), growth: t.growth || '', growthNumber: growthNumber(t.growth) });\n}\nreturn (rows.length ? rows : [{ ...tag, noData: true, seed: '' }]).map(json => ({ json }));"
+        "jsCode": "// One call's Google Trends results -> one row per rising search or topic, for every niche that watches that term\n// (a call can serve several niches). Terms Google has no data for are kept as \"noData\" rows, so the summary can name them.\nconst job = $('Loop over jobs').first().json;\nconst tagOf = n => ({ group: n.group, about: n.about, niche: n.niche, audience: n.audience, country: n.country,\n  timeRange: n.timeRange, formats: n.formats, source: n.source, skipped: n.skipped,\n  keywordsUsed: n.keywordsUsed, topicOrigin: n.topicOrigin, keywordNote: n.keywordNote });\nconst watchers = {};\nfor (const n of job.niches) for (const k of n.keywordsUsed) (watchers[k.toLowerCase()] ??= []).push(tagOf(n));\nconst growthNumber = g => /breakout/i.test(g || '') ? 5000 : (parseInt(String(g || '').replace(/[^0-9]/g, ''), 10) || 0);\nconst rows = [];\nfor (const { json: k } of $input.all()) {\n  for (const tag of watchers[String(k.keyword || '').toLowerCase()] || []) {\n    if (!['complete', 'partial'].includes(k.status)) { rows.push({ ...tag, noData: true, seed: k.keyword }); continue; }\n    for (const q of k.relatedQueries?.rising || [])\n      rows.push({ ...tag, seed: k.keyword, kind: 'search', text: q.query, topicType: '', growth: q.growth || '', growthNumber: growthNumber(q.growth) });\n    for (const t of k.relatedTopics?.rising || [])\n      rows.push({ ...tag, seed: k.keyword, kind: 'topic', text: t.title, topicType: /^topic$/i.test(t.type || '') ? '' : (t.type || ''), growth: t.growth || '', growthNumber: growthNumber(t.growth) });\n  }\n}\n// every niche in the call shows up in the results, even one Google had nothing for\nfor (const n of job.niches) if (!rows.some(r => r.group === n.group)) rows.push({ ...tagOf(n), noData: true, seed: '' });\nreturn rows.map(json => ({ json }));"
       },
       "id": "d9c59cb4-0211-505a-b1ab-8c0e3afb7877",
       "name": "Collect rising searches",
@@ -756,7 +696,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// All jobs' rising searches -> one item per niche with its best candidates. Per niche:\n//  1. Junk out. Google Trends data carries bot and AI-agent traffic: prompt-like searches (\"explain what X is and its\n//     main benefits\") and generic Breakouts (\"how to make sushi\") under unrelated keywords.\n//  2. Relevance. With AI, the model judges it later; without AI, a search must share a real word with its keyword or niche.\n//  3. Variants merged (\"trader joe's retinol\" = \"trader joes retinol\"; a topic and a search naming the same product).\n//  4. Ranked by growth, boosted when rising under several keywords or as both a search and a topic; a search that is\n//     just your keyword again ranks lower.\n//  5. Scheduled runs remember what was sent (8 weeks) and flag what's new since the last run.\n//  6. Spread across keywords; with AI, unrelated-looking searches get at most a third of the list (new brands often\n//     share no word with your keywords, so the AI gets a chance to keep them).\nconst d = $('Defaults').first().json;\nconst limit = Math.max(1, Number(d.ideasPerNiche) || 10);\n\n// ---- tuning (safe to change) ----\nconst STOP = new Set(['for', 'the', 'and', 'with', 'from', 'that', 'this', 'your', 'you', 'how', 'what', 'when', 'why',\n  'who', 'which', 'can', 'does', 'best', 'top', 'near', 'are', 'was', 'use', 'using', 'new', 'free', 'good', 'get', 'not',\n  'all', 'about', 'into', 'like', 'more', 'most', 'make', 'way', 'ways', 'vs', 'review', 'reviews', 'usa', 'online']);\nconst PROMPT_START = /^(explain|describe|write|list|give me|tell me|summarize|summarise|compare|create|generate|provide|act as)\\b/i;\nconst PROMPT_PHRASE = /\\band (its|their) (main|primary|key|potential)\\b|\\bwhy do you think\\b|\\bin (simple|detail|bullet)/i;\nconst MAX_WORDS = 15;          // longer \"searches\" read like prompts; real questions and product names stay under it\nconst ECHO_FACTOR = 0.3;       // a search that is just your keyword again (\"AI agent\" under \"ai agents\") says little\nconst JUNK_UNDER_KEYWORDS = 3; // the same unrelated search under this many keywords = bot junk\nconst BOOST_PER_EXTRA_KEYWORD = 0.5, BOOST_SEARCH_AND_TOPIC = 0.2, NOT_NEW_FACTOR = 0.8;\nconst REMEMBER_WEEKS = 8;\n\nconst norm = t => String(t).toLowerCase().replace(/['’]/g, '').replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim();\nconst words = t => norm(t).split(' ').filter(w => w.length > 2 && !STOP.has(w));\nconst stems = t => new Set(words(t).map(w => w.slice(0, 5)));\nconst shares = (a, b) => [...a].some(x => b.has(x));\nconst sig = t => [...new Set(words(t).map(w => w.replace(/(?<=..)s$/, '')))].sort().join(' ') || norm(t);\nconst allStems = t => new Set(norm(t).split(' ').filter(w => w.length > 1).map(w => w.slice(0, 5)));\nconst echoes = (text, seed) => { const a = allStems(text), b = allStems(seed); return a.size > 0 && [...a].every(x => b.has(x)); };\n\nconst byNiche = {};\nfor (const { json: r } of $input.all()) (byNiche[r.group] ??= []).push(r);\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {}; memory.lastRun ??= {};\nconst now = Date.now();\nconst out = [];\n\nfor (const [group, rowsAll] of Object.entries(byNiche)) {\n  const info = rowsAll[0];\n  const useAI = info.useAI === true;\n  const remember = info.source === 'sheet'; // one-off form runs always show everything\n  const candidates = useAI ? Math.min(limit * 4, 40) : limit; // the AI is strict, so it gets plenty to choose from\n  const all = rowsAll.filter(r => !r.noData);\n  const seedsWithData = new Set(all.map(r => r.seed));\n  const noData = [...new Set(rowsAll.filter(r => r.noData && r.seed).map(r => r.seed))].filter(k => !seedsWithData.has(k));\n  const stats = { risingFound: all.length, junk: 0, offTopic: 0, merged: 0, alreadySent: 0, keywordsWithoutData: noData,\n    skippedRows: info.skipped || [] };\n  // the niche's own words: its name and all its keywords (not the audience: \"people\", \"work\", \"training\" match too much)\n  const nicheStems = stems([info.niche, ...seedsWithData].join(' '));\n\n  // 1 + 2\n  const under = {};\n  for (const r of all) (under[norm(r.text)] ??= new Set()).add(r.seed);\n  const kept = all.filter(r => {\n    r.related = shares(stems(r.text), nicheStems);\n    const promptLike = r.kind === 'search' && (PROMPT_START.test(r.text) || PROMPT_PHRASE.test(r.text)\n      || norm(r.text).split(' ').length > MAX_WORDS);\n    if (promptLike || (under[norm(r.text)].size >= JUNK_UNDER_KEYWORDS && !r.related)) { stats.junk++; return false; }\n    if (!useAI && !r.related) { stats.offTopic++; return false; }\n    return true;\n  });\n\n  // seed health: how many usable rising searches each keyword brought (a keyword is a seed; Google reports what rises\n  // around it, so a good seed is a core topic people search all the time, not something that must be booming itself)\n  const keywordYield = {};\n  for (const r of kept) keywordYield[r.seed] = (keywordYield[r.seed] || 0) + 1;\n\n  // 3\n  const groups = [];\n  for (const r of kept.sort((a, b) => b.growthNumber - a.growthNumber)) {\n    const g = groups.find(g => g.sig === sig(r.text));\n    if (g) {\n      stats.merged++;\n      g.seeds.add(r.seed); g.kinds.add(r.kind); g.related ||= r.related;\n      if (norm(r.text) !== norm(g.text)) g.variants.add(r.text);\n      g.topicType ||= r.topicType;\n    } else {\n      groups.push({ sig: sig(r.text), wordSet: new Set(sig(r.text).split(' ')), text: r.text, growth: r.growth,\n        growthNumber: r.growthNumber, topicType: r.topicType, related: r.related, echo: [...seedsWithData, info.niche].some(k => echoes(r.text, k)),\n        seeds: new Set([r.seed]), kinds: new Set([r.kind]), variants: new Set() });\n    }\n  }\n  for (const t of groups.filter(g => g.kinds.size === 1 && g.kinds.has('topic') && g.wordSet.size >= 3)) {\n    const q = groups.find(g => g !== t && g.kinds.has('search') && [...t.seeds].some(k => g.seeds.has(k))\n      && [...t.wordSet].every(w => g.wordSet.has(w)));\n    if (!q) continue;\n    stats.merged++;\n    q.kinds.add('topic'); q.variants.add(t.text); q.topicType ||= t.topicType;\n    q.growthNumber = Math.max(q.growthNumber, t.growthNumber);\n    t.mergedInto = q;\n  }\n  const merged = groups.filter(g => !g.mergedInto);\n\n  // 4 + 5\n  const sent = remember ? (memory.sent[group] ??= {}) : {};\n  for (const [k, t] of Object.entries(sent)) if (now - t > REMEMBER_WEEKS * 7 * 86400e3) delete sent[k];\n  const lastRun = new Set(remember ? memory.lastRun[group] || [] : []);\n  if (remember) memory.lastRun[group] = merged.map(g => g.sig);\n  const scored = merged\n    .filter(g => { if (sent[g.sig]) { stats.alreadySent++; return false; } return true; })\n    .map(g => {\n      const isNew = remember ? !lastRun.has(g.sig) : null;\n      const score = g.growthNumber * (1 + BOOST_PER_EXTRA_KEYWORD * (g.seeds.size - 1))\n        * (g.kinds.size > 1 ? 1 + BOOST_SEARCH_AND_TOPIC : 1) * (isNew === false ? NOT_NEW_FACTOR : 1)\n        * (g.echo ? ECHO_FACTOR : 1);\n      return { ...g, isNew, score };\n    })\n    .sort((a, b) => b.score - a.score);\n\n  // 6\n  const perSeed = Math.max(2, Math.ceil(candidates / Math.max(1, seedsWithData.size)));\n  const used = {}, picked = [];\n  const take = (list, max) => { for (const g of list) {\n    if (picked.length >= max) return;\n    if (picked.includes(g)) continue;\n    const main = [...g.seeds][0];\n    if ((used[main] || 0) < perSeed) { used[main] = (used[main] || 0) + 1; picked.push(g); } } };\n  const related = scored.filter(g => g.related), unrelated = scored.filter(g => !g.related);\n  take(related, useAI ? candidates - Math.ceil(candidates / 3) : candidates);\n  take(unrelated, candidates);\n  take(related, candidates);\n\n  const geo = encodeURIComponent(info.country || ''), date = encodeURIComponent(info.timeRange);\n  out.push({ id: `N${out.length + 1}`, group, niche: info.niche, audience: info.audience, formats: info.formats, country: info.country,\n    timeRange: info.timeRange, useAI, source: info.source, stats, nothingNew: picked.length === 0,\n    keywordsUsed: info.keywordsUsed || [...seedsWithData], suggested: info.suggested || [], keywordNote: info.keywordNote || '',\n    keywordYield,\n    candidates: picked.map((g, i) => ({ n: i + 1, key: g.sig, text: g.text, variants: [...g.variants], related: g.related, echo: g.echo,\n      kind: [...g.kinds].sort().join(' + '), topicType: g.topicType, growth: g.growth, seeds: [...g.seeds], isNew: g.isNew,\n      googleTrends: `https://trends.google.com/trends/explore?q=${encodeURIComponent(g.text)}&geo=${geo}&date=${date}` })) });\n}\nreturn out.map(json => ({ json }));"
+        "jsCode": "// All jobs' rising searches -> one item per niche with its best candidates. Per niche:\n//  1. Junk out. Google Trends data carries bot and AI-agent traffic: prompt-like searches (\"explain what X is and its\n//     main benefits\") and generic Breakouts (\"how to make sushi\") under unrelated keywords.\n//  2. Relevance. The AI judges it later; \"related\" (shares a real word with the niche or its terms) only orders the list\n//     and, if the AI is unavailable, decides what goes in the report.\n//  3. Variants merged (\"trader joe's retinol\" = \"trader joes retinol\"; a topic and a search naming the same product).\n//  4. Ranked by growth, boosted when rising under several keywords or as both a search and a topic; a search that is\n//     just your keyword again ranks lower.\n//  5. Scheduled runs remember what was sent (8 weeks) and flag what's new since the last run.\n//  6. Spread across keywords; unrelated-looking searches get at most a third of the list (new brands often share no\n//     word with your keywords, so the AI gets a chance to keep them).\nconst d = $('Defaults').first().json;\nconst limit = Math.max(1, Number(d.ideasPerNiche) || 10);\n\n// ---- tuning (safe to change) ----\nconst STOP = new Set(['for', 'the', 'and', 'with', 'from', 'that', 'this', 'your', 'you', 'how', 'what', 'when', 'why',\n  'who', 'which', 'can', 'does', 'best', 'top', 'near', 'are', 'was', 'use', 'using', 'new', 'free', 'good', 'get', 'not',\n  'all', 'about', 'into', 'like', 'more', 'most', 'make', 'way', 'ways', 'vs', 'review', 'reviews', 'usa', 'online']);\nconst PROMPT_START = /^(explain|describe|write|list|give me|tell me|summarize|summarise|compare|create|generate|provide|act as)\\b/i;\nconst PROMPT_PHRASE = /\\band (its|their) (main|primary|key|potential)\\b|\\bwhy do you think\\b|\\bin (simple|detail|bullet)/i;\nconst MAX_WORDS = 15;          // longer \"searches\" read like prompts; real questions and product names stay under it\nconst ECHO_FACTOR = 0.3;       // a search that is just your keyword again (\"AI agent\" under \"ai agents\") says little\nconst JUNK_UNDER_KEYWORDS = 3; // the same unrelated search under this many keywords = bot junk\nconst BOOST_PER_EXTRA_KEYWORD = 0.5, BOOST_SEARCH_AND_TOPIC = 0.2, NOT_NEW_FACTOR = 0.8;\nconst REMEMBER_WEEKS = 8;\n\nconst norm = t => String(t).toLowerCase().replace(/['’]/g, '').replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim();\nconst words = t => norm(t).split(' ').filter(w => w.length > 2 && !STOP.has(w));\nconst stems = t => new Set(words(t).map(w => w.slice(0, 5)));\nconst shares = (a, b) => [...a].some(x => b.has(x));\nconst sig = t => [...new Set(words(t).map(w => w.replace(/(?<=..)s$/, '')))].sort().join(' ') || norm(t);\nconst allStems = t => new Set(norm(t).split(' ').filter(w => w.length > 1).map(w => w.slice(0, 5)));\nconst echoes = (text, seed) => { const a = allStems(text), b = allStems(seed); return a.size > 0 && [...a].every(x => b.has(x)); };\n\nconst byNiche = {};\nfor (const { json: r } of $input.all()) (byNiche[r.group] ??= []).push(r);\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {}; memory.lastRun ??= {};\nconst now = Date.now();\nconst out = [];\n\nfor (const [group, rowsAll] of Object.entries(byNiche)) {\n  const info = rowsAll[0];\n  const remember = info.source === 'sheet'; // one-off form runs always show everything\n  const candidates = Math.min(limit * 4, 40); // the AI is strict, so it gets plenty to choose from\n  const all = rowsAll.filter(r => !r.noData);\n  const seedsWithData = new Set(all.map(r => r.seed));\n  const noData = [...new Set(rowsAll.filter(r => r.noData && r.seed).map(r => r.seed))].filter(k => !seedsWithData.has(k));\n  const stats = { risingFound: all.length, junk: 0, offTopic: 0, merged: 0, alreadySent: 0, keywordsWithoutData: noData,\n    skippedRows: info.skipped || [] };\n  // the niche's own words: its name and all its keywords (not the audience: \"people\", \"work\", \"training\" match too much)\n  const nicheStems = stems([info.niche, ...seedsWithData].join(' '));\n\n  // 1 + 2\n  const under = {};\n  for (const r of all) (under[norm(r.text)] ??= new Set()).add(r.seed);\n  const kept = all.filter(r => {\n    r.related = shares(stems(r.text), nicheStems);\n    const promptLike = r.kind === 'search' && (PROMPT_START.test(r.text) || PROMPT_PHRASE.test(r.text)\n      || norm(r.text).split(' ').length > MAX_WORDS);\n    if (promptLike || (under[norm(r.text)].size >= JUNK_UNDER_KEYWORDS && !r.related)) { stats.junk++; return false; }\n    return true;\n  });\n\n  // seed health: how many usable rising searches each keyword brought (a keyword is a seed; Google reports what rises\n  // around it, so a good seed is a core topic people search all the time, not something that must be booming itself)\n  const keywordYield = {};\n  for (const r of kept) keywordYield[r.seed] = (keywordYield[r.seed] || 0) + 1;\n\n  // 3\n  const groups = [];\n  for (const r of kept.sort((a, b) => b.growthNumber - a.growthNumber)) {\n    const g = groups.find(g => g.sig === sig(r.text));\n    if (g) {\n      stats.merged++;\n      g.seeds.add(r.seed); g.kinds.add(r.kind); g.related ||= r.related;\n      if (norm(r.text) !== norm(g.text)) g.variants.add(r.text);\n      g.topicType ||= r.topicType;\n    } else {\n      groups.push({ sig: sig(r.text), wordSet: new Set(sig(r.text).split(' ')), text: r.text, growth: r.growth,\n        growthNumber: r.growthNumber, topicType: r.topicType, related: r.related, echo: [...seedsWithData, info.niche].some(k => echoes(r.text, k)),\n        seeds: new Set([r.seed]), kinds: new Set([r.kind]), variants: new Set() });\n    }\n  }\n  for (const t of groups.filter(g => g.kinds.size === 1 && g.kinds.has('topic') && g.wordSet.size >= 3)) {\n    const q = groups.find(g => g !== t && g.kinds.has('search') && [...t.seeds].some(k => g.seeds.has(k))\n      && [...t.wordSet].every(w => g.wordSet.has(w)));\n    if (!q) continue;\n    stats.merged++;\n    q.kinds.add('topic'); q.variants.add(t.text); q.topicType ||= t.topicType;\n    q.growthNumber = Math.max(q.growthNumber, t.growthNumber);\n    t.mergedInto = q;\n  }\n  const merged = groups.filter(g => !g.mergedInto);\n\n  // 4 + 5\n  const sent = remember ? (memory.sent[group] ??= {}) : {};\n  for (const [k, t] of Object.entries(sent)) if (now - t > REMEMBER_WEEKS * 7 * 86400e3) delete sent[k];\n  const lastRun = new Set(remember ? memory.lastRun[group] || [] : []);\n  if (remember) memory.lastRun[group] = merged.map(g => g.sig);\n  const scored = merged\n    .filter(g => { if (sent[g.sig]) { stats.alreadySent++; return false; } return true; })\n    .map(g => {\n      const isNew = remember ? !lastRun.has(g.sig) : null;\n      const score = g.growthNumber * (1 + BOOST_PER_EXTRA_KEYWORD * (g.seeds.size - 1))\n        * (g.kinds.size > 1 ? 1 + BOOST_SEARCH_AND_TOPIC : 1) * (isNew === false ? NOT_NEW_FACTOR : 1)\n        * (g.echo ? ECHO_FACTOR : 1);\n      return { ...g, isNew, score };\n    })\n    .sort((a, b) => b.score - a.score);\n\n  // 6\n  const perSeed = Math.max(2, Math.ceil(candidates / Math.max(1, seedsWithData.size)));\n  const used = {}, picked = [];\n  const take = (list, max) => { for (const g of list) {\n    if (picked.length >= max) return;\n    if (picked.includes(g)) continue;\n    const main = [...g.seeds][0];\n    if ((used[main] || 0) < perSeed) { used[main] = (used[main] || 0) + 1; picked.push(g); } } };\n  const related = scored.filter(g => g.related), unrelated = scored.filter(g => !g.related);\n  take(related, candidates - Math.ceil(candidates / 3));\n  take(unrelated, candidates);\n  take(related, candidates);\n\n  const geo = encodeURIComponent(info.country || ''), date = encodeURIComponent(info.timeRange);\n  out.push({ id: `N${out.length + 1}`, group, about: info.about, niche: info.niche, audience: info.audience,\n    formats: info.formats, country: info.country, timeRange: info.timeRange, source: info.source, stats,\n    nothingNew: picked.length === 0, keywordsUsed: info.keywordsUsed || [...seedsWithData],\n    topicOrigin: info.topicOrigin || {}, keywordNote: info.keywordNote || '',\n    keywordYield,\n    candidates: picked.map((g, i) => ({ n: i + 1, key: g.sig, text: g.text, variants: [...g.variants], related: g.related, echo: g.echo,\n      kind: [...g.kinds].sort().join(' + '), topicType: g.topicType, growth: g.growth, seeds: [...g.seeds], isNew: g.isNew,\n      googleTrends: `https://trends.google.com/trends/explore?q=${encodeURIComponent(g.text)}&geo=${geo}&date=${date}` })) });\n}\nreturn out.map(json => ({ json }));"
       },
       "id": "b61f8239-b501-5453-8c38-efb41ff8c470",
       "name": "Clean and rank",
@@ -778,8 +718,8 @@
           },
           "conditions": [
             {
-              "id": "fe190112-a35b-5ef5-9faf-35f45669807e",
-              "leftValue": "={{ $json.useAI === true && $json.nothingNew !== true }}",
+              "id": "049b2dc5-4fa1-5dde-91be-b0bd6d1c86d9",
+              "leftValue": "={{ $json.nothingNew !== true }}",
               "rightValue": "",
               "operator": {
                 "type": "boolean",
@@ -793,8 +733,8 @@
         "looseTypeValidation": true,
         "options": {}
       },
-      "id": "ed980aac-cc17-5540-9425-afc9c65de5ba",
-      "name": "Write ideas with AI?",
+      "id": "d4a2d589-8d24-5143-a3c5-de710afbcd38",
+      "name": "Anything to write about?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
@@ -804,7 +744,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One AI request per niche: the model sees the whole list, so it can compare and drop the weak ones.\nreturn $input.all().map(({ json: n }) => {\n  const list = n.candidates.map(c =>\n    `${c.n}. \"${c.text}\"${c.topicType ? ` [topic: ${c.topicType}]` : ''}: rising ${c.growth}`\n    + ` under ${c.seeds.map(k => `\"${k}\"`).join(', ')}${c.variants.length ? `; also searched as ${c.variants.map(v => `\"${v}\"`).join(', ')}` : ''}`\n    + `${c.echo ? ' (just my keyword again)' : ''}${c.isNew === false ? ' (was rising last time too)' : ''}`).join('\\n');\n  const prompt = [\n    `Today is ${new Date().toISOString().slice(0, 10)}.`,\n    `I make content about: ${n.niche}.`,\n    n.audience ? `My audience: ${n.audience}.` : 'My audience: people interested in this niche.',\n    `Formats I publish: ${n.formats || 'blog post, short video'}.`,\n    ``,\n    `These searches are rising on Google right now (${n.country || 'worldwide'}, ${n.timeRange}), with their growth and the keyword they rose under:`,\n    list,\n    ``,\n    `For every numbered item, return:`,\n    `- relevance (0-10): how good a content opportunity it is for my audience right now.`,\n    `  9-10: specific and clearly for my audience: a question they ask, a product, rule, event or story they care about.`,\n    `  6-8: relevant, but broader or less timely.`,\n    `  3-5: a broad name on its own (a company, platform, category, or just my keyword again) that rises for too many reasons to tell what people want; or about the same story or product type as a better item in this list.`,\n    `  0-2: unrelated to my niche, spam, or bot traffic.`,\n    `  Judge the search itself, not the idea you could write about it: a broad name stays at 5 or less even if you can think of a good angle for it.`,\n    `- whyRising: one sentence starting with \"Likely\" or \"Possibly\": the reason people may be searching it now. You only see Google search data and your knowledge may be out of date, so never state recent events, versions or prices as facts; say \"Unclear\" if you don't know. If the search looks like the title of a specific article, paper, book, video or news story, say so.`,\n    `- title, angle (what to cover), hook (the opening line), format (one of my formats; vary them across ideas where it fits).`,\n    `- checkBeforePublishing: every fact the idea relies on that must be verified before publishing: numbers, prices, dates, versions, rules, study results, and the original source when the search points to a specific article or story. Empty only when there is nothing to verify.`,\n    ``,\n    `Rules for title, hook and angle:`,\n    `- No numbers, prices, percentages, amounts or time claims unless they are in the search itself or listed in checkBeforePublishing. Counting your own steps or tips (\"3 steps\") is fine.`,\n    `- No personal experience (\"I tested\", \"my results\"): the creator hasn't done it yet.`,\n    `- Put a year in a title only when the search is about that year.`,\n    `- Each idea must be distinct. When several items are about the same story or product type, give the best one an idea that covers them all and score the others 5 or less.`,\n    ``,\n    `Return one entry per item, using its number as \"n\", and set \"nicheId\" to \"${n.id}\".`,\n  ].join('\\n');\n  return { json: { ...n, prompt } };\n});"
+        "jsCode": "// One AI request per niche: the model sees the whole list, so it can compare and drop the weak ones.\nreturn $input.all().map(({ json: n }) => {\n  const list = n.candidates.map(c =>\n    `${c.n}. \"${c.text}\"${c.topicType ? ` [topic: ${c.topicType}]` : ''}: rising ${c.growth}`\n    + ` under ${c.seeds.map(k => `\"${k}\"`).join(', ')}${c.variants.length ? `; also searched as ${c.variants.map(v => `\"${v}\"`).join(', ')}` : ''}`\n    + `${c.echo ? ' (just my keyword again)' : ''}${c.isNew === false ? ' (was rising last time too)' : ''}`).join('\\n');\n  const prompt = [\n    `Today is ${new Date().toISOString().slice(0, 10)}.`,\n    `I make content about: ${n.niche}.`,\n    n.about && n.about.toLowerCase() !== n.niche.toLowerCase() ? `In my own words: \"${n.about}\". Lean towards what I said I want to cover.` : null,\n    n.audience ? `My audience: ${n.audience}.` : 'My audience: people interested in this niche.',\n    `Formats I publish: ${n.formats || 'blog post, short video'}.`,\n    ``,\n    `These searches are rising on Google right now (${n.country || 'worldwide'}, ${n.timeRange}), with their growth and the keyword they rose under:`,\n    list,\n    ``,\n    `For every numbered item, return:`,\n    `- relevance (0-10): how good a content opportunity it is for my audience right now.`,\n    `  9-10: specific and clearly for my audience: a question they ask, a product, rule, event or story they care about.`,\n    `  6-8: relevant, but broader or less timely.`,\n    `  3-5: a broad name on its own (a company, platform, category, or just my keyword again) that rises for too many reasons to tell what people want; or about the same story or product type as a better item in this list.`,\n    `  0-2: unrelated to my niche, spam, or bot traffic.`,\n    `  Judge the search itself, not the idea you could write about it: a broad name stays at 5 or less even if you can think of a good angle for it.`,\n    `- whyRising: one sentence starting with \"Likely\" or \"Possibly\": the reason people may be searching it now. You only see Google search data and your knowledge may be out of date, so never state recent events, versions or prices as facts; say \"Unclear\" if you don't know. If the search looks like the title of a specific article, paper, book, video or news story, say so.`,\n    `- title, angle (what to cover), hook (the opening line), format (one of my formats; vary them across ideas where it fits).`,\n    `- checkBeforePublishing: every fact the idea relies on that must be verified before publishing: numbers, prices, dates, versions, rules, study results, and the original source when the search points to a specific article or story. Empty only when there is nothing to verify.`,\n    ``,\n    `Rules for title, hook and angle:`,\n    `- No numbers, prices, percentages, amounts or time claims unless they are in the search itself or listed in checkBeforePublishing. Counting your own steps or tips (\"3 steps\") is fine.`,\n    `- No personal experience (\"I tested\", \"my results\"): the creator hasn't done it yet.`,\n    `- Put a year in a title only when the search is about that year.`,\n    `- Each idea must be distinct. When several items are about the same story or product type, give the best one an idea that covers them all and score the others 5 or less.`,\n    ``,\n    `Return one entry per item, using its number as \"n\", and set \"nicheId\" to \"${n.id}\".`,\n  ].filter(l => l !== null).join('\\n');\n  return { json: { ...n, prompt } };\n});"
       },
       "id": "93d3595c-ea2d-5d7b-826e-e61f96f0105c",
       "name": "Prepare AI request",
@@ -915,7 +855,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Every niche -> its rows in one fixed set of columns (the same for ideas and for the report), plus a summary line.\n// Scheduled runs also remember what was sent, so next week brings only new searches.\nconst d = $('Defaults').first().json;\nconst limit = Math.max(1, Number(d.ideasPerNiche) || 10);\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {};\nconst today = new Date().toISOString().slice(0, 10);\nconst COLUMNS = ['date', 'niche', 'mode', 'status', 'idea', 'angle', 'hook', 'format', 'whyRising', 'checkBeforePublishing',\n  'risingSearch', 'growth', 'type', 'alsoSearchedAs', 'newThisWeek', 'yourKeywords', 'relevance', 'googleTrends', 'note'];\nconst row = (n, c, extra) => Object.fromEntries(COLUMNS.map(k => [k, ({\n  date: today, niche: n.niche, status: 'to review', risingSearch: c.text, growth: c.growth,\n  type: c.kind + (c.topicType ? ` (${c.topicType})` : ''), alsoSearchedAs: c.variants.join('; '),\n  newThisWeek: c.isNew === null ? '' : c.isNew ? 'yes' : 'no', yourKeywords: c.seeds.join(', '), googleTrends: c.googleTrends,\n  ...extra })[k] ?? '']));\n\nreturn $input.all().map(({ json: n }) => {\n  const mode = n.nothingNew ? 'nothing new' : n.mode || (n.useAI ? 'ideas' : 'report');\n  let rows = [];\n  if (mode === 'ideas') rows = n.ideas.map(c => row(n, c, { mode, idea: c.idea, angle: c.angle, hook: c.hook, format: c.format,\n    whyRising: c.whyRising, checkBeforePublishing: (c.checkBeforePublishing || []).join('; '), relevance: c.relevance }));\n  // the report prefers word-matched searches: when the AI failed, its list also holds unrelated ones it was meant to judge\n  const matched = n.candidates.filter(c => c.related);\n  const reportPicks = (matched.length ? matched : n.candidates).slice(0, limit);\n  if (mode === 'report') rows = reportPicks.map(c => row(n, c, { mode, note: n.aiNote || '' }));\n  if (n.source === 'sheet') { memory.sent[n.group] ??= {};\n    for (const c of mode === 'ideas' ? n.ideas : mode === 'report' ? reportPicks : []) memory.sent[n.group][c.key] = Date.now(); }\n  const st = n.stats;\n  // off-topic: dropped by the word match, judged weak by the AI, or (AI unavailable) left out of the report as unrelated\n  const offTopic = st.offTopic + (n.aiDropped || 0) + (mode === 'report' && matched.length ? n.candidates.length - matched.length : 0);\n  // which topics (keywords) were searched, so people learn what works and can keep the good suggestions\n  const suggested = n.suggested || [];\n  const keywords = { used: n.keywordsUsed || [], suggested, noData: st.keywordsWithoutData, yield: n.keywordYield || {} };\n  // the summary says what the person got and what to do, not how it was filtered (that stays in `filtering`)\n  const headline = mode === 'nothing new' ? (st.alreadySent ? 'nothing new is rising right now; what is rising was sent before'\n      : 'nothing new is rising right now')\n    : mode === 'ideas' ? `${rows.length} content ideas, picked from ${st.risingFound} rising searches`\n    : `${rows.length} rising searches worth a look, out of ${st.risingFound}`;\n  const alreadySent = mode !== 'nothing new' && st.alreadySent ? ` ${st.alreadySent} you got before are left out.` : '';\n  const noData = st.keywordsWithoutData.length ? ` Not enough Google data for: ${st.keywordsWithoutData.join(', ')}.` : '';\n  const suggestedNote = suggested.length ? ` Topics we suggested: ${suggested.join(', ')}.` : '';\n  const noDataAtAll = !st.risingFound && keywords.used.length && st.keywordsWithoutData.length >= keywords.used.length;\n  const summary = noDataAtAll ? `${n.niche}: not enough Google data for ${keywords.used.join(', ')}.`\n    : `${n.niche}: ${headline}.${alreadySent}${noData}${suggestedNote}`;\n  const filtering = { risingSearches: st.risingFound, junk: st.junk, offTopic, variantsMerged: st.merged, alreadySent: st.alreadySent };\n  return { json: { niche: n.niche, source: n.source, mode, rows, skippedRows: st.skippedRows, keywords,\n    keywordNote: n.keywordNote, summary, filtering } };\n});"
+        "jsCode": "// Every niche -> its rows in one fixed set of columns (the same for ideas and for the report), plus a summary line.\n// Scheduled runs also remember what was sent, so next week brings only new searches.\nconst d = $('Defaults').first().json;\nconst limit = Math.max(1, Number(d.ideasPerNiche) || 10);\nconst memory = $getWorkflowStaticData('global');\nmemory.sent ??= {};\nconst today = new Date().toISOString().slice(0, 10);\nconst COLUMNS = ['date', 'niche', 'mode', 'status', 'idea', 'angle', 'hook', 'format', 'whyRising', 'checkBeforePublishing',\n  'risingSearch', 'growth', 'type', 'alsoSearchedAs', 'newThisWeek', 'yourKeywords', 'relevance', 'googleTrends', 'note'];\nconst row = (n, c, extra) => Object.fromEntries(COLUMNS.map(k => [k, ({\n  date: today, niche: n.niche, status: 'to review', risingSearch: c.text, growth: c.growth,\n  type: c.kind + (c.topicType ? ` (${c.topicType})` : ''), alsoSearchedAs: c.variants.join('; '),\n  newThisWeek: c.isNew === null ? '' : c.isNew ? 'yes' : 'no', yourKeywords: c.seeds.join(', '), googleTrends: c.googleTrends,\n  ...extra })[k] ?? '']));\n\nreturn $input.all().map(({ json: n }) => {\n  const mode = n.nothingNew ? 'nothing new' : n.mode || 'report';\n  let rows = [];\n  if (mode === 'ideas') rows = n.ideas.map(c => row(n, c, { mode, idea: c.idea, angle: c.angle, hook: c.hook, format: c.format,\n    whyRising: c.whyRising, checkBeforePublishing: (c.checkBeforePublishing || []).join('; '), relevance: c.relevance }));\n  // the report prefers word-matched searches: when the AI failed, its list also holds unrelated ones it was meant to judge\n  const matched = n.candidates.filter(c => c.related);\n  const reportPicks = (matched.length ? matched : n.candidates).slice(0, limit);\n  if (mode === 'report') rows = reportPicks.map(c => row(n, c, { mode, note: n.aiNote || '' }));\n  if (n.source === 'sheet') { memory.sent[n.group] ??= {};\n    for (const c of mode === 'ideas' ? n.ideas : mode === 'report' ? reportPicks : []) memory.sent[n.group][c.key] = Date.now(); }\n  const st = n.stats;\n  // off-topic: dropped by the word match, judged weak by the AI, or (AI unavailable) left out of the report as unrelated\n  const offTopic = st.offTopic + (n.aiDropped || 0) + (mode === 'report' && matched.length ? n.candidates.length - matched.length : 0);\n  // which search terms were watched and where each came from (yours / from your words / added), so people see how\n  // their request was read and learn which terms work\n  const origin = n.topicOrigin || {};\n  const added = (n.keywordsUsed || []).filter(w => origin[w] === 'added');\n  const keywords = { used: n.keywordsUsed || [], origin, added, noData: st.keywordsWithoutData, yield: n.keywordYield || {} };\n  // the summary says what the person got and what to do, not how it was filtered (that stays in `filtering`)\n  const headline = mode === 'nothing new' ? (st.alreadySent ? 'nothing new is rising right now; what is rising was sent before'\n      : 'nothing new is rising right now')\n    : mode === 'ideas' ? `${rows.length} content ideas, picked from ${st.risingFound} rising searches`\n    : `${rows.length} rising searches worth a look, out of ${st.risingFound}`;\n  const alreadySent = mode !== 'nothing new' && st.alreadySent ? ` ${st.alreadySent} you got before are left out.` : '';\n  const noData = st.keywordsWithoutData.length ? ` Not enough Google data for: ${st.keywordsWithoutData.join(', ')}.` : '';\n  const noDataAtAll = !st.risingFound && keywords.used.length && st.keywordsWithoutData.length >= keywords.used.length;\n  const summary = noDataAtAll ? `${n.niche}: not enough Google data for ${keywords.used.join(', ')}.`\n    : `${n.niche}: ${headline}.${alreadySent}${noData}`;\n  const filtering = { risingSearches: st.risingFound, junk: st.junk, offTopic, variantsMerged: st.merged, alreadySent: st.alreadySent };\n  return { json: { niche: n.niche, about: n.about, source: n.source, mode, rows, skippedRows: st.skippedRows, keywords,\n    keywordNote: n.keywordNote, summary, filtering } };\n});"
       },
       "id": "adefca50-22f0-594e-bf74-5840f959e5b4",
       "name": "Results",
@@ -963,7 +903,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// The results as a web page for the form.\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]);\nconst niches = $input.all().map(i => i.json);\nconst card = r => r.mode === 'ideas'\n  ? `<div class=\"card\"><div class=\"t\">${esc(r.idea)}</div>\n      <div class=\"m\">${esc(r.risingSearch)} · <b>${esc(r.growth)}</b> · ${esc(r.format)} · relevance ${esc(r.relevance)}/10</div>\n      <p><b>Hook:</b> ${esc(r.hook)}</p><p><b>Angle:</b> ${esc(r.angle)}</p>\n      ${r.whyRising ? `<p><b>Likely why:</b> ${esc(r.whyRising)}</p>` : ''}\n      ${r.checkBeforePublishing ? `<p class=\"chk\"><b>Check before publishing:</b> ${esc(r.checkBeforePublishing)}</p>` : ''}\n      <a href=\"${esc(r.googleTrends)}\" target=\"_blank\">See it on Google Trends</a></div>`\n  : `<tr><td><a href=\"${esc(r.googleTrends)}\" target=\"_blank\">${esc(r.risingSearch)}</a></td><td>${esc(r.growth)}</td>\n      <td>${esc(r.type)}</td><td>${esc(r.yourKeywords)}</td></tr>`;\n// the topics looked at, each with the rising searches it found: our suggestions marked, no-data ones crossed out\nconst kw = n => { const k = n.keywords || {}; const sug = new Set(k.suggested || []), none = new Set(k.noData || []);\n  return (k.used || []).map(w => none.has(w) ? `<s>${esc(w)}</s>`\n    : `${esc(w)}${sug.has(w) ? '*' : ''} (${(k.yield || {})[w] || 0})`).join(', '); };\nconst section = n => `<h2>${esc(n.niche)}</h2>`\n  + `<p class=\"s\">${esc(n.summary.replace(/^[^:]*:\\s*/, '').replace(/ Topics we suggested: .*$/, ''))}</p>`\n  + `<p class=\"k\">Topics we looked at, with the rising searches each one found: ${kw(n)}`\n  + `${(n.keywords?.suggested || []).length ? ' · * our suggestion, keep the ones you like' : ''}`\n  + `${(n.keywords?.noData || []).length ? ' · crossed out: not enough Google data' : ''}</p>`\n  + (n.keywordNote ? `<p class=\"chk\">${esc(n.keywordNote)}</p>` : '')\n  + (n.mode === 'ideas' ? n.rows.map(card).join('')\n    : n.mode === 'report' ? `${n.rows[0]?.note ? `<p class=\"chk\">${esc(n.rows[0].note)}</p>` : ''}<table><tr><th>Rising search</th><th>Growth</th><th>Type</th><th>From topic</th></tr>${n.rows.map(card).join('')}</table>`\n    : '');\nconst html = `<style>body{font-family:system-ui,sans-serif}h2{margin:24px 0 4px}.s{color:#555;margin:0 0 4px}.k{color:#777;font-size:13px;margin:0 0 12px}\n.card{border:1px solid #ddd;border-radius:10px;padding:12px 14px;margin:10px 0;text-align:left}.t{font-weight:600;font-size:16px}\n.m{color:#666;font-size:13px;margin:4px 0 8px}p{margin:6px 0;font-size:14px}.chk{color:#8a5a00}table{border-collapse:collapse;width:100%;font-size:14px}\ntd,th{border-bottom:1px solid #eee;padding:6px;text-align:left}</style>${niches.map(section).join('')}`;\nreturn [{ json: { html } }];"
+        "jsCode": "// The results as a web page for the form.\nconst esc = s => String(s ?? '').replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]);\nconst niches = $input.all().map(i => i.json);\nconst card = r => r.mode === 'ideas'\n  ? `<div class=\"card\"><div class=\"t\">${esc(r.idea)}</div>\n      <div class=\"m\">${esc(r.risingSearch)} · <b>${esc(r.growth)}</b> · ${esc(r.format)} · relevance ${esc(r.relevance)}/10</div>\n      <p><b>Hook:</b> ${esc(r.hook)}</p><p><b>Angle:</b> ${esc(r.angle)}</p>\n      ${r.whyRising ? `<p><b>Likely why:</b> ${esc(r.whyRising)}</p>` : ''}\n      ${r.checkBeforePublishing ? `<p class=\"chk\"><b>Check before publishing:</b> ${esc(r.checkBeforePublishing)}</p>` : ''}\n      <a href=\"${esc(r.googleTrends)}\" target=\"_blank\">See it on Google Trends</a></div>`\n  : `<tr><td><a href=\"${esc(r.googleTrends)}\" target=\"_blank\">${esc(r.risingSearch)}</a></td><td>${esc(r.growth)}</td>\n      <td>${esc(r.type)}</td><td>${esc(r.yourKeywords)}</td></tr>`;\n// the search terms watched, each with the rising searches it found and where it came from: yours, turned from your\n// words (\"from ...\"), or added by us (*); no-data ones crossed out\nconst kw = n => { const k = n.keywords || {}; const o = k.origin || {}, none = new Set(k.noData || []);\n  return (k.used || []).map(w => none.has(w) ? `<s>${esc(w)}</s>` : `${esc(w)}${o[w] === 'added' ? '*' : ''} `\n    + `(${(k.yield || {})[w] || 0}${o[w] && o[w].startsWith('from') ? `, ${esc(o[w])}` : ''})`).join(', '); };\nconst section = n => `<h2>${esc(n.niche)}</h2>`\n  + `<p class=\"s\">${esc(n.summary.replace(/^[^:]*:\\s*/, ''))}</p>`\n  + `<p class=\"k\">We watched these on Google, with the rising searches each one found: ${kw(n)}`\n  + `${(n.keywords?.added || []).length ? ' · * added by us, keep the ones you like' : ''}`\n  + `${(n.keywords?.noData || []).length ? ' · crossed out: not enough Google data' : ''}</p>`\n  + (n.keywordNote ? `<p class=\"chk\">${esc(n.keywordNote)}</p>` : '')\n  + (n.mode === 'ideas' ? n.rows.map(card).join('')\n    : n.mode === 'report' ? `${n.rows[0]?.note ? `<p class=\"chk\">${esc(n.rows[0].note)}</p>` : ''}<table><tr><th>Rising search</th><th>Growth</th><th>Type</th><th>From topic</th></tr>${n.rows.map(card).join('')}</table>`\n    : '');\nconst html = `<style>body{font-family:system-ui,sans-serif}h2{margin:24px 0 4px}.s{color:#555;margin:0 0 4px}.k{color:#777;font-size:13px;margin:0 0 12px}\n.card{border:1px solid #ddd;border-radius:10px;padding:12px 14px;margin:10px 0;text-align:left}.t{font-weight:600;font-size:16px}\n.m{color:#666;font-size:13px;margin:4px 0 8px}p{margin:6px 0;font-size:14px}.chk{color:#8a5a00}table{border-collapse:collapse;width:100%;font-size:14px}\ntd,th{border-bottom:1px solid #eee;padding:6px;text-align:left}</style>${niches.length > 1 ? `<p class=\"s\">Ideas for ${niches.length} niches: ${niches.map(n => esc(n.niche)).join(' · ')}</p>` : ''}${niches.map(section).join('')}`;\nreturn [{ json: { html } }];"
       },
       "id": "f07d2307-f5c4-547a-92ae-d238febeb386",
       "name": "Results page",
@@ -1037,7 +977,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// A short message for Slack or Telegram covering every niche in this run.\nconst niches = $input.all().map(i => i.json);\nconst blocks = niches.map(n => {\n  const top = n.mode === 'ideas' ? n.rows.slice(0, 5).map((r, i) => `${i + 1}. ${r.idea} (\"${r.risingSearch}\" ${r.growth})`).join('\\n')\n    : n.mode === 'report' ? n.rows.slice(0, 5).map((r, i) => `${i + 1}. ${r.risingSearch} (${r.growth})`).join('\\n') : '';\n  const k = n.keywords || {};\n  const keep = n.source === 'sheet' && k.suggested?.length ? ' Add the ones you like to your sheet to keep them.' : '';\n  // topics that brought (almost) nothing: worth replacing with more concrete ones\n  const weak = (k.used || []).filter(w => !(k.noData || []).includes(w) && ((k.yield || {})[w] || 0) <= 1);\n  const weakNote = weak.length && weak.length < (k.used || []).length ? `\\nTopics that found little this time: ${weak.join(', ')}.` : '';\n  return `${n.summary}${keep}${weakNote}${n.keywordNote ? `\\n${n.keywordNote}` : ''}${top ? `\\n${top}` : ''}`;\n});\nconst skipped = niches[0]?.skippedRows?.length ? `\\n\\nSkipped these sheet rows because they have no niche: ${niches[0].skippedRows.join(', ')}.` : '';\nreturn [{ json: { text: `What's rising in your niches this week\\n\\n${blocks.join('\\n\\n')}${skipped}` } }];"
+        "jsCode": "// A short message for Slack or Telegram covering every niche in this run.\nconst niches = $input.all().map(i => i.json);\nconst blocks = niches.map(n => {\n  const top = n.mode === 'ideas' ? n.rows.slice(0, 5).map((r, i) => `${i + 1}. ${r.idea} (\"${r.risingSearch}\" ${r.growth})`).join('\\n')\n    : n.mode === 'report' ? n.rows.slice(0, 5).map((r, i) => `${i + 1}. ${r.risingSearch} (${r.growth})`).join('\\n') : '';\n  const k = n.keywords || {};\n  const keep = k.added?.length ? `\nWe also watched: ${k.added.join(', ')}.${n.source === 'sheet' ? ' Add the ones you like to your sheet to keep them.' : ''}` : '';\n  // topics that brought (almost) nothing: worth replacing with more concrete ones\n  const weak = (k.used || []).filter(w => !(k.noData || []).includes(w) && ((k.yield || {})[w] || 0) <= 1);\n  const weakNote = weak.length && weak.length < (k.used || []).length ? `\\nTopics that found little this time: ${weak.join(', ')}.` : '';\n  return `${n.summary}${keep}${weakNote}${n.keywordNote ? `\\n${n.keywordNote}` : ''}${top ? `\\n${top}` : ''}`;\n});\nconst skipped = niches[0]?.skippedRows?.length ? `\\n\\nSkipped these sheet rows because they have no niche: ${niches[0].skippedRows.join(', ')}.` : '';\nreturn [{ json: { text: `What's rising in your niches this week\\n\\n${blocks.join('\\n\\n')}${skipped}` } }];"
       },
       "id": "60093728-a0f7-51b3-9745-d2e51821f265",
       "name": "Weekly summary",
@@ -1192,72 +1132,54 @@
       "main": [
         [
           {
-            "node": "Suggest keywords?",
+            "node": "Ask AI to plan topics",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Suggest keywords?": {
+    "Ask AI to plan topics": {
       "main": [
         [
           {
-            "node": "Ask for keyword ideas",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "All niches",
-            "type": "main",
-            "index": 2
-          }
-        ]
-      ]
-    },
-    "Ask for keyword ideas": {
-      "main": [
-        [
-          {
-            "node": "Suggest keywords",
+            "node": "Plan topics",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Keyword list": {
+    "Topic plan": {
       "ai_outputParser": [
         [
           {
-            "node": "Suggest keywords",
+            "node": "Plan topics",
             "type": "ai_outputParser",
             "index": 0
           }
         ]
       ]
     },
-    "Suggest keywords": {
+    "Plan topics": {
       "main": [
         [
           {
-            "node": "Add suggested keywords",
+            "node": "Use planned topics",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Keep given keywords",
+            "node": "Plan without AI",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Add suggested keywords": {
+    "Use planned topics": {
       "main": [
         [
           {
@@ -1268,7 +1190,7 @@
         ]
       ]
     },
-    "Keep given keywords": {
+    "Plan without AI": {
       "main": [
         [
           {
@@ -1356,14 +1278,14 @@
       "main": [
         [
           {
-            "node": "Write ideas with AI?",
+            "node": "Anything to write about?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Write ideas with AI?": {
+    "Anything to write about?": {
       "main": [
         [
           {
@@ -1396,7 +1318,7 @@
       "ai_languageModel": [
         [
           {
-            "node": "Suggest keywords",
+            "node": "Plan topics",
             "type": "ai_languageModel",
             "index": 0
           },

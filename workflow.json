@@ -3,41 +3,25 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Niche trend content planner\nFinds the Google searches **rising in your niche**, removes the junk and turns the rest into content ideas: the likely reason it's rising, an angle, a hook, a format and what to fact-check.\n\n### Setup (5 minutes)\n1. **Connect Apify** (it fetches the Google Trends data). If n8n offers to install the Apify node, click **Install**. Then double-click the *Google Trends* node, open **Credential to connect with** and choose **Create new credential**. In the window that opens, click the **sign-in button** and approve in Apify. Nothing to copy.\n   *Self-hosted n8n has no Apify sign-in:* in the node, set *Authentication* to **API Key** first, then in the window paste your token from apify.com (Settings → API & Integrations).\n2. **Connect the AI** (it reads what people write, plans the search terms and writes the ideas, so it is required). Double-click *Gemini model* → **Credential to connect with** → **Create new credential**, and paste a free key from aistudio.google.com. Prefer another AI? Swap the node and connect it to both *Plan topics* and *Write content ideas*.\n3. **Optional: sheet and messages.** For Way 2, pick your sheet in *Read keyword sheet* and *Add to Google Sheet*. To get a weekly message, turn on *Send to Slack* or *Send to Telegram* and connect it the same way.\n\n### Three ways to use it (labelled Way 1-3 on the canvas)\n**Way 1 · Web form**: activate the workflow and open the *Form* URL, or share it with a client. One free-form question: what they want to make content about, in any words. For a batch, upload a CSV with one row per niche (the form explains it). Ideas appear on the next page.\n**Way 2 · Google Sheet, every Monday**: one row per niche (`niche`, optional `topics` separated by commas, `audience`, `country`, `formats`, `active`). The niche can be written in any words.\n**Way 3 · Test run**: edit *Test input* (write what you'd type in the form) and click **Execute workflow**.",
-        "width": 600,
-        "height": 940,
+        "content": "## Start here\nTurns what someone wants to make content about (\"home espresso\", or \"skincare for beginners, mostly retinol\") into content ideas from what's rising on Google right now.\n\n### Set up once (about 5 minutes)\n**1. Connect Apify** (Step 2, node *Google Trends*). If n8n offers to install the Apify node, click **Install**. Open the node → **Credential to connect with** → **Create new credential** → sign in to Apify. *Self-hosted n8n:* first set **Authentication** to **API Key**, then paste your token from apify.com.\n\n**2. Connect the AI** (Step 1, node *Gemini model*). **Credential to connect with** → **Create new credential** → paste a free key from aistudio.google.com.\n\n**3. Try it** (Way 3). Hover *Run it now* and click its ▶ button. After about 2 minutes, open *Weekly summary* in Step 4 to read the ideas.\n\n**4. Go live.** Publish the workflow (top right; older n8n: switch it to Active). Open *Form* and copy its **Production URL**: that's the link to use or share.\n\n### Three ways in (blue, on the left)\n**Way 1** a web form · **Way 2** a Google Sheet every Monday · **Way 3** a test run.\n\nFull guide and troubleshooting: the README on GitHub.",
+        "width": 660,
+        "height": 900,
         "color": 4
       },
-      "id": "bfbc137f-47f0-50b4-951d-7d240a7de71c",
-      "name": "Note: about",
+      "id": "fa2d62b8-853e-5ffd-816d-8ed369d650ca",
+      "name": "Start here",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -1240,
-        -760
+        -1300,
+        -600
       ]
     },
     {
       "parameters": {
-        "content": "### Inputs → one shape\nEach source has an adapter that outputs the same rows: `niche, keyword, audience, country, timeRange, formats, source`. `niche` is what the person wrote, in any words; `keyword` is an optional topic they listed. An empty field is filled from *Defaults*. To add Airtable, Notion or a webhook, add one adapter that feeds *Defaults*.\n\nOwner settings (ideas per niche, how many terms to watch, default country) live in *Defaults*, not on the form.",
+        "content": "## Way 1 · Web form\nPeople write what they want to make content about, or upload a CSV with one row per niche. Ideas show on the next page. Publish the workflow, then use the *Form* node's Production URL.",
         "width": 700,
-        "height": 280,
-        "color": 7
-      },
-      "id": "7125cbc9-3721-5b00-a722-a729480b007f",
-      "name": "Note: inputs",
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        -600,
-        -880
-      ]
-    },
-    {
-      "parameters": {
-        "content": "## Way 1 · Web form\nActivate the workflow, then open or share the *Form* URL. People write what they want to make content about, in their own words, or upload a CSV with one row per niche, and see their ideas on the next page.",
-        "width": 700,
-        "height": 260,
+        "height": 290,
         "color": 5
       },
       "id": "3b8c9123-3f21-54a6-bcd9-768f2f33b433",
@@ -46,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -600,
-        -590
+        -600
       ]
     },
     {
       "parameters": {
-        "content": "## Way 2 · Google Sheet, every Monday\nOne row per niche in a `Keywords` tab: `niche`, and optionally `topics`, `audience`, `country`. Ideas land in the `Ideas` tab, with a summary in Slack or Telegram.",
+        "content": "## Way 2 · Google Sheet, every Monday\nOne row per niche in a `Keywords` tab (`niche`, optional `topics`, `audience`, `country`). **Setup:** pick your sheet in *Read keyword sheet*.",
         "width": 700,
-        "height": 260,
+        "height": 290,
         "color": 5
       },
       "id": "4904ceed-b338-52c9-b19c-d7cd50f79cef",
@@ -62,14 +46,14 @@
       "typeVersion": 1,
       "position": [
         -600,
-        -310
+        -300
       ]
     },
     {
       "parameters": {
-        "content": "## Way 3 · Test run\nWrite in *Test input* what you'd type in the form, then click **Execute workflow** to see a result right here.",
+        "content": "## Way 3 · Test run\nWrite in *Test input* what you'd type in the form. Click ▶ on *Run it now*. Read the ideas in *Weekly summary* (Step 4).",
         "width": 700,
-        "height": 260,
+        "height": 300,
         "color": 5
       },
       "id": "65505e49-5f90-5f34-90d9-7ede2627a2da",
@@ -78,71 +62,71 @@
       "typeVersion": 1,
       "position": [
         -600,
-        -30
+        0
       ]
     },
     {
       "parameters": {
-        "content": "### The AI plans what to watch\n*Plan topics* reads what the person wrote and returns the niche, the audience and about `topicsPerNiche` search terms. Their own topics are judged: **kept** when people already search them, **rewritten** into search terms when they're descriptions (\"retinol for teens\" → retinol, teen acne), **left out** only when off-niche (and named). Then it adds terms people in that niche actually search. People describe a niche differently from how they search it, so this matters: in tests the planned terms found about 6x more rising searches than the words as typed. The results show every term, where it came from, and how many rising searches it found. If the AI is unavailable, what they wrote is split into short terms and searched as it is.",
-        "width": 900,
-        "height": 320,
+        "content": "## Step 1 · Read the request\nThe AI reads what was written and plans the search terms to watch: keeps the person's topics, rewrites vague ones, adds more. **Setup:** connect your AI in *Gemini model* (it's used here and in Step 3). Settings (ideas per niche, default country...) are in *Defaults*.",
+        "width": 1360,
+        "height": 900,
         "color": 7
       },
-      "id": "b3b250ff-5ef4-5c55-aa11-48597b2910ca",
-      "name": "Note: planning",
+      "id": "d5ce2b3a-b497-57a5-8e5e-795726cdd658",
+      "name": "Step 1 · Read the request",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        400,
-        -880
+        140,
+        -600
       ]
     },
     {
       "parameters": {
-        "content": "### How ideas are picked (per niche)\nJunk out (prompt-like searches and generic Breakouts from bot traffic), variants merged, ranked by growth with a boost for searches rising under several terms, spread across terms, then the AI scores each one 0–10. Weekly sheet runs never repeat an idea within 8 weeks and flag what's new. Tuning values sit at the top of *Clean and rank*.",
-        "width": 520,
-        "height": 220,
+        "content": "## Step 2 · Get Google Trends data\nWhat's rising around each search term, several niches per call. **Setup:** connect Apify in *Google Trends*.",
+        "width": 1100,
+        "height": 900,
         "color": 7
       },
-      "id": "502d6309-d6ff-5170-8729-a0344dc66f0e",
-      "name": "Note: picking",
+      "id": "4bdde51b-682f-53ba-a1bc-c6a1f5dc85b3",
+      "name": "Step 2 · Get Google Trends data",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2620,
-        -840
+        1520,
+        -600
       ]
     },
     {
       "parameters": {
-        "content": "### Ideas, or the list if the AI fails\nEach niche gets one request: relevance, why rising, title, angle, hook, format and a fact-check list (*Structured Output Parser* keeps fields valid). Both AI steps retry 3 times; if the ideas step still fails, the niche gets the **rising searches list** instead, with a note saying why.",
-        "width": 520,
-        "height": 220,
-        "color": 5
+        "content": "## Step 3 · Pick the best, write ideas\nJunk out (bot and prompt-like searches), the best rising searches ranked, then the AI writes each idea with a hook, an angle and a fact-check list. If the AI fails, you get the list of rising searches instead.",
+        "width": 1320,
+        "height": 900,
+        "color": 7
       },
-      "id": "d97c6c35-561d-52ab-8668-221be802fc29",
-      "name": "Note: AI or report",
+      "id": "de6a9fa4-5eef-5660-965b-1139d743fcec",
+      "name": "Step 3 · Pick the best, write ideas",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        3300,
-        -840
+        2640,
+        -600
       ]
     },
     {
       "parameters": {
-        "content": "### Results\n- **Form:** shown on the results page, with the terms it watched and where each came from.\n- **Sheet / test runs:** one row per idea in your sheet (status \"to review\", same columns for ideas and the list) and a summary in Slack or Telegram (off until set up).\nNothing is published automatically.",
-        "width": 440,
-        "height": 220,
+        "content": "## Step 4 · Deliver\n**Form:** the results page. **Sheet or test run:** read the ideas in *Weekly summary*. **Optional:** turn on and connect *Add to Google Sheet* (tab `Ideas`), *Send to Slack* or *Send to Telegram*. Nothing is published automatically.",
+        "width": 1000,
+        "height": 900,
         "color": 6
       },
-      "id": "07a42bd7-a965-5688-9bde-59348ef1b82e",
-      "name": "Note: results",
+      "id": "c4ba4b29-dcc8-53de-88e9-2608652d3c95",
+      "name": "Step 4 · Deliver",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        4440,
-        -760
+        3980,
+        -600
       ]
     },
     {
@@ -308,7 +292,7 @@
       "typeVersion": 2.6,
       "position": [
         -520,
-        -480
+        -460
       ],
       "webhookId": "ff42ce3b-a31d-5745-96f6-a03131e55e80"
     },
@@ -322,7 +306,7 @@
       "typeVersion": 2,
       "position": [
         -280,
-        -480
+        -460
       ]
     },
     {
@@ -345,7 +329,7 @@
       "typeVersion": 1.2,
       "position": [
         -520,
-        -200
+        -160
       ]
     },
     {
@@ -368,7 +352,7 @@
       "typeVersion": 4.5,
       "position": [
         -280,
-        -200
+        -160
       ]
     },
     {
@@ -381,7 +365,7 @@
       "typeVersion": 2,
       "position": [
         -60,
-        -200
+        -160
       ]
     },
     {
@@ -392,7 +376,7 @@
       "typeVersion": 1,
       "position": [
         -520,
-        80
+        140
       ]
     },
     {
@@ -421,7 +405,7 @@
       "typeVersion": 3.4,
       "position": [
         -280,
-        80
+        140
       ]
     },
     {
@@ -434,7 +418,7 @@
       "typeVersion": 2,
       "position": [
         -60,
-        80
+        140
       ]
     },
     {
@@ -505,7 +489,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        180,
+        200,
         -220
       ]
     },
@@ -518,7 +502,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        400,
+        420,
         -220
       ]
     },
@@ -531,7 +515,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        620,
+        640,
         -220
       ]
     },
@@ -555,7 +539,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        860,
+        880,
         -220
       ],
       "onError": "continueErrorOutput",
@@ -575,7 +559,7 @@
       "typeVersion": 1.3,
       "position": [
         980,
-        0
+        20
       ]
     },
     {
@@ -587,8 +571,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1160,
-        -320
+        1120,
+        -340
       ]
     },
     {
@@ -600,8 +584,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1160,
-        -120
+        1120,
+        -100
       ]
     },
     {
@@ -613,7 +597,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1400,
+        1340,
         -220
       ]
     },
@@ -626,7 +610,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1620,
+        1560,
         -220
       ]
     },
@@ -639,7 +623,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        1940,
+        1780,
         -220
       ]
     },
@@ -652,8 +636,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2160,
-        0
+        2000,
+        -40
       ]
     },
     {
@@ -677,8 +661,8 @@
       "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 2,
       "position": [
-        2380,
-        0
+        2220,
+        -40
       ]
     },
     {
@@ -690,8 +674,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2600,
-        0
+        2440,
+        -40
       ]
     },
     {
@@ -703,8 +687,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2180,
-        -460
+        2680,
+        -220
       ]
     },
     {
@@ -738,8 +722,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2400,
-        -460
+        2900,
+        -220
       ]
     },
     {
@@ -751,8 +735,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2620,
-        -560
+        3120,
+        -340
       ]
     },
     {
@@ -775,8 +759,8 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        2860,
-        -560
+        3360,
+        -340
       ],
       "onError": "continueErrorOutput",
       "retryOnFail": true,
@@ -795,8 +779,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1.2,
       "position": [
-        2800,
-        -340
+        780,
+        20
       ]
     },
     {
@@ -810,8 +794,8 @@
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
       "position": [
-        2960,
-        -340
+        3420,
+        -120
       ]
     },
     {
@@ -823,8 +807,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3180,
-        -620
+        3600,
+        -440
       ]
     },
     {
@@ -836,8 +820,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3180,
-        -460
+        3600,
+        -260
       ]
     },
     {
@@ -849,8 +833,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        3440,
-        -460
+        3820,
+        -220
       ]
     },
     {
@@ -862,8 +846,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3660,
-        -460
+        4020,
+        -220
       ]
     },
     {
@@ -897,8 +881,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3880,
-        -460
+        4240,
+        -220
       ]
     },
     {
@@ -910,8 +894,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4100,
-        -600
+        4460,
+        -420
       ]
     },
     {
@@ -925,8 +909,8 @@
       "type": "n8n-nodes-base.form",
       "typeVersion": 2.5,
       "position": [
-        4320,
-        -600
+        4700,
+        -420
       ],
       "webhookId": "ea0efac3-0940-5c6d-8bec-2e483e710c42"
     },
@@ -940,8 +924,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        4100,
-        -400
+        4460,
+        -200
       ]
     },
     {
@@ -970,8 +954,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        4320,
-        -400
+        4700,
+        -200
       ],
       "disabled": true
     },
@@ -984,8 +968,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4100,
-        -220
+        4460,
+        20
       ]
     },
     {
@@ -1004,8 +988,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.2,
       "position": [
-        4320,
-        -260
+        4700,
+        -10
       ],
       "disabled": true
     },
@@ -1022,8 +1006,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        4320,
-        -100
+        4700,
+        130
       ],
       "disabled": true
     }

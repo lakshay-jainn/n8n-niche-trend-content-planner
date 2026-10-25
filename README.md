@@ -1,88 +1,78 @@
 # Niche trend content planner for n8n
 
-This n8n workflow finds the Google searches that are **rising in your niche**, throws out the junk, and turns the rest into content ideas. Each idea comes with the likely reason it's rising, an angle, a hook, a format and **the facts to check before you publish**.
+Tell it what you want to make content about, in your own words. It finds what people are starting to search for on Google in that niche, and turns it into content ideas you can post this week: a title, a hook, an angle, the likely reason it's rising, and what to fact-check first.
 
-Most "Google Trends to content" workflows use **Trending Now**: whatever is trending nationally today, which is usually sports, celebrities and news. That's useless if you write about skincare, SaaS or home espresso. This one starts from **what you want to make content about**, in your own words, and uses Google Trends' **rising related queries and related topics** around it.
+![Results for "I make YouTube videos about AI for product managers": the search terms it watched, then idea cards](images/results.png)
 
-## Who it's for, and what they type in
+Most "Google Trends to content" workflows use **Trending Now**, which is mostly sports, celebrities and news. This one looks at what's rising **inside your niche**.
 
-Two people touch this workflow, and the inputs are shaped around each.
+**Contents:** [Quick start](#quick-start-about-5-minutes) · [How to use it](#how-to-use-it) · [Reading your results](#reading-your-results) · [Settings](#settings) · [Troubleshooting](#troubleshooting) · [How it works](#how-it-works) · [How it was tested](#how-it-was-tested)
 
-- **The owner** imports it into n8n, connects Apify and an AI model, and picks a few settings once in **Defaults**. Often that's a creator doing it for themselves; often it's a freelancer setting it up for a client.
-- **The user** fills in the form or the sheet: a creator, marketer or small business owner who wants to know what to post this week. They know their niche. They usually don't know Google Trends or "keywords", and they shouldn't have to.
+## What you need
 
-So the form asks one thing in plain words and lets people answer however they like:
+- **n8n**, Cloud or self-hosted (tested on 2.44).
+- **An Apify account**, for the Google Trends data. The free plan is enough to try it.
+- **An AI key.** A free Google Gemini key works, or any chat model n8n supports.
+- *Optional:* Google Sheets, Slack or Telegram, for the weekly version.
 
-| Question | |
-|---|---|
-| **What do you want to make content about?** | Free-form. "home espresso" works; so does "skincare for beginners, mostly retinol and acne scars", or "I make YouTube videos about AI for product managers. Want to cover evals, agents, and how PMs should prototype with AI" |
-| **Where do you want to post?** | Blog, YouTube, Shorts / Reels / TikTok, Instagram carousel, Newsletter, LinkedIn, Podcast, X. The ideas use these formats |
-| **Where do you want to reach people?** | A country, or Worldwide. Empty uses the owner's default |
-| **How recent should the trends be?** | Last 30 days (recommended), last 7 days for fast-moving topics, last 3 months for slower niches, last 12 months |
-| **Several niches at once? Upload a CSV** | For agencies and batches: one row per niche (see [bulk](#several-niches-at-once-bulk)). The form explains the format right above the upload and links a template; the first box can then stay empty |
+## Quick start (about 5 minutes)
 
-The button says **Get my content ideas**.
+**1. Import the workflow.** In n8n, create a new workflow, open the **⋯** menu (top right) → **Import from URL**, and paste:
 
-## The AI reads what they wrote and plans what to watch
+```
+https://raw.githubusercontent.com/lakshay-jainn/n8n-niche-trend-content-planner/main/workflow.json
+```
 
-Google Trends works from **search terms**. A term is a seed: Google reports the searches that are rising around it, measured from real search data ("can you use niacinamide with tretinoin" +300%, "halloween latte art" Breakout). So nobody has to guess what's booming; the only question is which seeds to watch, and people describe a niche differently from how they search it. Nobody types "how PMs should prototype with AI" into Google.
+You'll see a green **Start here** note, three blue bands on the left (**Way 1–3**, the ways in) and four bands to the right (**Step 1–4**, what every run goes through).
 
-So the first AI step, **Plan topics**, reads the answer and returns the niche, the audience (if they mentioned one) and about 8 search terms. Their own topics are judged, not thrown away:
+**2. Install the Apify node, if n8n asks.** Click **Install**. It's a verified community node. On n8n Cloud, the instance owner may need to allow verified community nodes in the Admin Panel first.
 
-| What they wrote | What the planner did (live runs) |
-|---|---|
-| "skincare for beginners, mostly retinol for teens and acne scars" | kept **acne scars**; turned "retinol for teens" into **retinol** and **teen acne**; added salicylic acid, benzoyl peroxide, niacinamide, cerave… |
-| "I make YouTube videos about AI for product managers. Want to cover evals, agents, and how PMs should prototype with AI" | turned them into **llm evals**, **ai agents**, **ai prototyping**; added prompt engineering, rag, cursor ai, v0… |
-| "personal finance for college students" with the topics roth ira, "how to save money as a college student on a budget", credit card, crypto memes | kept **roth ira** and **credit card**; turned the long phrase into **budgeting**; **left out "crypto memes"** and said why; added student loans, fafsa, credit score… |
-| "I post short videos about budget travel in Japan for families with kids" | niche "budget Japan family travel"; jr pass, suica card, tokyo disneyland, universal studios japan… |
+**3. Connect Apify.** It's in **Step 2**: double-click the **Google Trends** node → **Credential to connect with** → **Create new credential**.
+- **n8n Cloud:** click the sign-in button and approve in Apify. Nothing to copy.
+- **Self-hosted n8n:** Apify's sign-in isn't available there. In the node, set **Authentication** to **API Key** first, then paste your token from [apify.com](https://console.apify.com) → **Settings** → **API & Integrations**.
 
-Does this beat just searching what people typed? Eight free-form requests, the same day, counting rising searches only:
+**4. Connect the AI.** It's in **Step 1**: double-click **Gemini model** → **Credential to connect with** → **Create new credential**. Get a free key at [aistudio.google.com](https://aistudio.google.com) → **Get API key** → **Create API key**, and paste it into **API Key**. (The same node serves Step 3 too, so you only do this once.)
 
-| | Rising searches found |
-|---|---|
-| What they typed, split into short terms | 112 |
-| The AI's planned terms (two rounds) | 669 and 630 |
+**5. Try it.** In **Way 3 · Test run**, open **Test input** and write what you'd type in the form, or keep the example. Hover **Run it now** and click its ▶ button. After about 2 minutes, double-click **Weekly summary** (in **Step 4**) to read your ideas. **One row per idea** shows them as a table.
 
-Every one of the eight did better, and two found nothing at all as typed ("budget travel in Japan", "indie game dev, I use godot"). The planner isn't perfect: now and then it picks a precise term few people search ("tokyo with toddlers", "teen acne"). Those cost nothing and show up with a count of 0.
+**6. Go live.** Click **Publish** (top right; in older n8n, switch the workflow to **Active**). Then double-click the **Form** node and copy its **Production URL**. That's the link you open yourself or send to a client.
 
-The results show every term watched, where it came from, and how many rising searches it found, for example `retinol (19), acne scars (18, from "how to deal with acne scars"), cerave* (30)`. Terms the AI added are marked with *, terms with no data are crossed out, and the weekly summary names the ones that found little and suggests adding the good ones to your sheet.
+For the weekly Google Sheet version, see [Way 2](#way-2--google-sheet-every-monday).
 
-## Why the AI is built in, and what happens when it fails
+## How to use it
 
-The AI does two jobs here: it reads the request and plans the terms, then it scores every rising search and writes the ideas. Making it optional would mean asking people for keywords in Google's language, which is exactly what they can't do. So it's built in. The tradeoffs, honestly:
+```mermaid
+flowchart LR
+  W1[Way 1: Web form] --> S1
+  W2[Way 2: Google Sheet, every Monday] --> S1
+  W3[Way 3: Test run] --> S1
+  S1[Step 1: the AI reads the request and plans what to search] --> S2[Step 2: Google Trends data, via Apify]
+  S2 --> S3[Step 3: the best rising searches, turned into ideas]
+  S3 --> S4[Step 4: results page, sheet, Slack or Telegram]
+```
 
-- **You need an AI key.** Gemini has a free tier; any n8n chat model works.
-- **What people write goes to that AI provider**, along with the rising searches.
-- **AI calls fail sometimes**: a wrong key, no credit, rate limits. Each AI step retries 3 times. If planning still fails, what they wrote is split into short terms and searched as it is ("…mostly retinol, sunscreen and niacinamide, and how to deal with acne scars" → retinol, sunscreen, niacinamide, acne scars). If the ideas step fails, the niche gets the **list of rising searches** instead of ideas. Both come with a note saying why ("the AI key or model name needs checking", "the AI account is out of credit", "the AI service is busy, try again soon"). A run never comes back empty because of the AI.
+### Way 1 · Web form
 
-## Three ways to use it
+The form asks one thing, **"What do you want to make content about?"**, and people answer however they like:
 
-Each one is labelled on the canvas (**Way 1 · Web form**, **Way 2 · Google Sheet**, **Way 3 · Test run**).
+- `home espresso`
+- `skincare for beginners, mostly retinol and acne scars`
+- `I make YouTube videos about AI for product managers. Want to cover evals, agents, and how PMs should prototype with AI`
 
-| | Best for | What you give it | Where results go |
-|---|---|---|---|
-| **1. Web form** | One-off checks, a link for a client who doesn't use n8n, or a one-off batch | One free-form answer, and/or a CSV with one row per niche | A results page, right after you submit |
-| **2. Google Sheet, every Monday** | A standing weekly plan, any number of niches | One row per niche in a `Keywords` tab | A row per idea in an `Ideas` tab, plus a summary in Slack or Telegram |
-| **3. Test run** | Trying it out in the editor | Edit the **Test input** node | Same as the sheet |
+Then, optionally: where they post, which country, and how recent the trends should be. Ideas show on the next page after about 2 minutes.
 
-All three feed the same pipeline, so they behave the same way.
+<img src="images/form.png" alt="The form: one free-form question, where to post, country, how recent, and a CSV upload for several niches" width="380">
 
-### 1. Web form
+### Several niches at once (CSV)
 
-Activate the workflow and open the **Form** node's production URL (it ends in `/form/rising-in-my-niche`). Write what you want to make content about and submit.
+On the form, upload a CSV with **one row per niche**. The form explains this right above the upload and links a [template](bulk_template.csv). Only `niche` is needed; leave the first box empty, or use it for one more niche.
 
-### Several niches at once (bulk)
-
-Both bulk options use **the same file shape: one row per niche**. Only `niche` is required, written in any words. The form shows this right above the upload, with an example and a link to [bulk_template.csv](bulk_template.csv).
-
-| Column | Required | What goes in it |
+| Column | Needed? | What to put in it |
 |---|---|---|
-| `niche` | yes | What you want to make content about, in any words: "home espresso", or "I post short videos about budget travel in Japan for families with kids" |
-| `topics` | no | Topics you want covered, separated by commas: `retinol, sunscreen, how to deal with acne scars`. Each is judged like everything else: kept, turned into a search term, or left out (and named) if it's off-niche |
+| `niche` | yes | What you want to make content about, in any words |
+| `topics` | no | Topics you want covered, separated by commas |
 | `audience` | no | Who it's for |
-| `country` | no | Two-letter code (`US`, `IN`); empty uses the default |
-| `formats` | no | Where you post (sheet only; the form uses its checkboxes) |
-| `active` | no | `no` pauses the row (sheet only) |
+| `country` | no | Two-letter code, like `US` or `IN` |
 
 ```csv
 niche,topics,audience,country
@@ -91,190 +81,152 @@ home espresso,,people making coffee at home,US
 I post short videos about budget travel in Japan for families with kids,,,US
 ```
 
-- **Form upload:** for a one-off batch. Leave the first box empty, or use it for one more niche. If the typed answer and a row turn out to be the same niche, they're merged.
-- **Google Sheet:** for a standing weekly plan. Same columns, in a tab named `Keywords`.
-- **Speed:** niches with the same country and time range share Google Trends calls (up to 40 terms per call), so four niches take one call. A live 4-niche upload took about 2.5 minutes in all. The AI still plans and writes per niche, so very large batches are better on the sheet than on a form someone waits on.
-- **Old files still work:** a `keyword` column with one topic per row (the niche repeated on each row) is read too, and rows of the same niche are merged.
-- **Limit:** `maxKeywordsPerRun` (300) caps a run, which is about 25 niches.
+Each niche gets its own section of ideas. Four niches took about 2.5 minutes in a live test. For more than 5 niches, or every week, the Google Sheet is a better fit.
 
-### 2. Google Sheet, every Monday
+![Results for a 4-niche CSV: one section per niche](images/bulk_results.png)
 
-Make a sheet with a tab named `Keywords`, one row per niche (the columns above):
+### Way 2 · Google Sheet, every Monday
 
-| niche | topics | audience | country | formats | active |
-|---|---|---|---|---|---|
-| skincare for beginners | retinol, niacinamide | people new to skincare | US | | |
-| home espresso | espresso machine, latte art | people making coffee at home | | youtube, blog | |
-| moka pot recipes | | | | | no |
-| I post short videos about budget travel in Japan for families with kids | | | | | |
+1. Make a Google Sheet with two tabs: **`Keywords`** and **`Ideas`** (leave `Ideas` empty).
+2. In `Keywords`, add one row per niche, with the same columns as the CSV above, plus `formats` (where you post) and `active` (`no` pauses a row):
 
-Rows without a niche are skipped and listed in the summary. Each niche is planned on its own, with its own ideas and its own memory. Point **Read keyword sheet** at the sheet and **Add to Google Sheet** at the same file (tab `Ideas`), then activate the workflow.
+   | niche | topics | audience | country | formats | active |
+   |---|---|---|---|---|---|
+   | skincare for beginners | retinol, niacinamide | people new to skincare | US | | |
+   | home espresso | espresso machine, latte art | | | youtube, blog | |
+   | I post short videos about budget travel in Japan for families with kids | | | | | |
 
-### 3. Test run
+3. In **Way 2**, double-click **Read keyword sheet**: connect your Google account and pick the sheet.
+4. In **Step 4**, **Add to Google Sheet** is turned off. Select it, press **D** (or right-click → **Activate**), connect Google, and pick the same sheet (tab `Ideas`).
+5. *Optional:* turn on **Send to Slack** or **Send to Telegram** the same way, and pick a channel or chat.
+6. Publish the workflow. It runs every Monday at 8:00. Each niche is planned on its own and never gets the same idea twice within 8 weeks.
 
-Write in **Test input** what you'd type in the form, then click **Execute workflow**.
+### Way 3 · Test run
 
-## What a run looks like
+Write in **Test input** what you'd type in the form, click ▶ on **Run it now**, and read **Weekly summary**. Test runs don't touch the weekly memory.
 
-Real output from the live tests below (US, past 30 days, Gemini 3.8 Flash):
+## Reading your results
 
-| Asked for | Rising search | Growth | Idea |
-|---|---|---|---|
-| skincare, "…and how to deal with acne scars" | what helps acne scars go away | Breakout | What Actually Helps Acne Scars Go Away? |
-| skincare | can you use niacinamide while pregnant | Breakout | Can You Use Niacinamide While Pregnant? |
-| AI for product managers | fine tuning vs prompt engineering | Breakout | Fine-Tuning vs Prompt Engineering: The AI PM Decision Tree |
-| AI for product managers | what is cursor ai used for | +350% | What Is Cursor AI Used For? A PM Guide to Rapid Prototyping |
-| Japan travel with kids | suica card vs jr pass | Breakout | Suica Card vs JR Pass: Which Saves Families More Money? |
-| home espresso | bottomless portafilter vs regular | Breakout | Bottomless vs Regular Portafilter: What Actually Changes? |
+**The line above the ideas** shows every search term it watched, and how many rising searches each one found:
 
-A full idea, as it lands in your sheet:
+> We watched these on Google: llm evals (19, from "evals"), ai agents (39, from "agents"), prompt engineering* (43), v0* (38)…
 
-| Column | Example |
-|---|---|
-| idea | Is Niacinamide Good for Rosacea? What Beginners Need to Know About Percentages |
-| angle | Clarify that while niacinamide supports the skin barrier and reduces redness, high concentrations (10%+) frequently trigger flare-ups in rosacea-prone skin. |
-| hook | If your face turns beet red every time you use niacinamide, you are probably using the wrong percentage. |
-| format | blog post |
-| whyRising | Likely driven by people with sensitive, reactive skin seeking soothing ingredients to calm facial flushing and barrier irritation. |
-| checkBeforePublishing | Clinical consensus on effective, well-tolerated niacinamide concentrations (typically 2% to 5%) for sensitive or rosacea-prone skin |
-| risingSearch · growth · type | is niacinamide good for rosacea · Breakout · search |
+- A plain term (`retinol (19)`) is **yours**, kept as you wrote it.
+- `(…, from "…")` means it **turned your words into a search term**. Nobody searches "how PMs should prototype with AI", but people do search "ai prototyping".
+- `*` means the AI **added** it. Keep the ones you like in your sheet.
+- A crossed-out term had **not enough Google data**. That's normal for rare terms, and it costs nothing.
+- A note like **"We left out: crypto memes (…)"** means a topic didn't fit the niche.
 
-### The sheet columns
+**Each idea card** shows:
+- **The title**, the rising search behind it, its growth ("Breakout" means it grew more than 5,000%), the format, and a relevance score out of 10.
+- **Hook**, the opening line, and **Angle**, what to cover.
+- **Likely why:** the probable reason it's rising. It's a reasoned guess from search data, not news.
+- **Check before publishing:** the facts in the idea that need verifying. Read this before you post.
+- **See it on Google Trends:** the chart, so you can judge it yourself.
 
-Ideas and the fallback list use the **same 19 columns**, so one `Ideas` tab holds both:
+## Settings
 
-`date, niche, mode, status, idea, angle, hook, format, whyRising, checkBeforePublishing, risingSearch, growth, type, alsoSearchedAs, newThisWeek, yourKeywords, relevance, googleTrends, note`
+All in the **Defaults** node (Step 1). The defaults are fine to start.
 
-- `mode` is `ideas`, or `report` when the AI couldn't write ideas.
-- `status` starts as `to review`.
-- `note` explains a fallback, for example when the AI was unavailable.
+| Setting | What it does | Default |
+|---|---|---|
+| `ideasPerNiche` | Ideas per niche | 10 |
+| `minRelevance` | Only keep ideas the AI scores at least this high (0–10) | 6 |
+| `topicsPerNiche` | How many search terms the AI aims to watch per niche | 8 |
+| `maxTopicsPerNiche` | The most it may watch, including yours | 12 |
+| `includeTopics` | Also use Google's rising related topics, not just searches | true |
+| `defaultCountry` | When nobody picked a country. Two-letter code, or empty for worldwide | US |
+| `defaultTimeRange` | `now 7-d`, `today 1-m`, `today 3-m` or `today 12-m` | today 1-m |
+| `defaultFormats` | When nobody said where they post | blog post, short video, carousel, newsletter |
+| `maxKeywordsPerRun` | A safety cap on search terms per run (about 25 niches) | 300 |
 
-## How it picks what's worth writing about
+To change the style of the ideas (video scripts, newsletter sections, product ideas), edit the instructions in **Prepare AI request** (Step 3).
 
-Per niche:
+## Troubleshooting
 
-**1. Junk out.** Google Trends data in 2026 is full of what looks like bot and AI-agent traffic. With six skincare keywords, these came back as **Breakout** searches:
-- generic ones under unrelated keywords: `how to make sushi`, `what is a 401k`, `best time to visit maldives`, `bread`
-- prompt-like ones: `explain what niacinamide is and its main benefits for skin health`
+**There's no sign-in button in the Apify credential.**
+You're on self-hosted n8n, where Apify's sign-in isn't available. In the **Google Trends** node, set **Authentication** to **API Key**, then create the credential with your Apify token.
 
-Removed, before anything reaches the AI: searches that read like prompts (they start with "explain", "describe", "write", "list", "give me", "tell me", "summarize", "compare", "create", "generate", "provide" or "act as", or contain phrases like "and its main benefits", "why do you think", "in simple terms"), "searches" longer than 15 words, and generic searches repeated under 3 or more unrelated terms. Real long questions stay, like "what is a high yield savings account and how does it work", and so do paper and product titles.
+**n8n says the Apify node is unknown, or the Google Trends node has a "?" icon.**
+The Apify community node isn't installed. Install it from the prompt or search "Apify" in the nodes panel. On n8n Cloud, the instance owner may need to allow verified community nodes first.
 
-**2. Variants merged.** "trader joe's retinol" and "trader joes retinol" become one. A topic and a search naming the same product merge too.
+**I got a list of rising searches instead of ideas, with "We couldn't write ideas this time".**
+The AI call failed. The note says why: the key or model name needs checking, the account is out of credit, or the service is busy. Fix the **Gemini model** credential and run it again.
 
-**3. Ranked by growth**, boosted when something rises under several of your terms or as both a search and a topic. A search that just repeats a term you watch ranks lower. Picks are spread across terms, so one term can't take every slot.
+**"We couldn't plan topics with AI this time".**
+Same cause, at Step 1. The run still searched your words as written, but results are much better once the AI works.
 
-**4. The AI scores each one 0–10** with a fixed scale: a specific question, product, rule or story for your audience scores high; a broad name on its own ("Claude", "Steam", "Serum") scores 5 or less, even if the model can imagine a good angle. A search that's just one of your terms again is capped at 5 in code. Several searches about the same story or product type (four walking-pad brands) become one idea that covers them all. The ideas lean towards what the person said they want to cover.
+**I ran the test, but where are the ideas?**
+Double-click **Weekly summary** in Step 4 (or **One row per idea** for a table). The form shows them on a page; the test run shows them in the editor.
 
-**5. Memory (weekly sheet runs).** It never repeats an idea within 8 weeks, and marks what's **new since the last run**. Form and test runs don't touch the memory.
+**The form link doesn't work.**
+Use the **Production URL**, and publish the workflow first. The Test URL only works while the editor is listening.
 
-**6. Quiet weeks** get a short "nothing new is rising" line in the summary (and on the results page) instead of silence, naming the terms Google has no data for. No empty rows are added to your sheet.
+**The form shows "Problem submitting response".**
+Open **Executions** in n8n and click the failed run: the red node shows what went wrong. Usually a credential isn't connected yet, or the form was sent with nothing in it and no CSV.
 
-All tuning values are commented at the top of the **Clean and rank** node.
+**Nothing arrives in my sheet, Slack or Telegram.**
+Those nodes start turned off. Select each one and press **D** (or right-click → **Activate**), connect it, and make sure the sheet has an `Ideas` tab.
+
+**"Not enough Google data for …"**
+Those terms are too rare in that country. It costs nothing. If a term keeps finding little, replace it in your sheet with something more concrete, like a product, an ingredient, a tool or a common problem.
+
+**"nothing new is rising right now"**
+On a weekly sheet run, this means everything rising was already sent to you before. Try again next week, or add more topics.
+
+**It takes a while.**
+About 1.5–2 minutes per niche. A form waits for the whole run, so use the sheet for big batches.
 
 ## How it works
 
-```
-Form ──────────→ From form ───────┐
-Every Monday → Read keyword sheet → From sheet ──┼→ Defaults → Group by niche
-Run it now ────→ Test input → From test input ┘                       │
-                         Ask AI to plan topics → Plan topics (LLM Chain + Gemini + Structured Output Parser)
-                                                   ├ ok    → Use planned topics ──┐
-                                                   └ error → Plan without AI ─────┴→ All niches → Build jobs
-                                                                      │ (same niches merged, 40 terms per call)
-                                        Loop over jobs: Build Actor input → Google Trends (Apify) → Collect
-                                                                      │
-                                                               Clean and rank
-                                                                      │
-                               Anything to write about? ── yes → Prepare AI request → Write content ideas
-                                              │ no                    (LLM Chain + Gemini + Structured Output Parser)
-                                              │                         ├ ok    → Add AI ideas ─────┐
-                                              │                         └ error → AI unavailable: report ┤
-                                              └──────────────────────────────────────────────→ Combine niches
-                                                                                                    │
-                                                         Results → From the form? ── yes → Results page → Show results
-                                                                         │ no
-                                                                         ├→ One row per idea → Add to Google Sheet
-                                                                         └→ Weekly summary → Slack / Telegram
-```
+Every run goes through the same four steps, matching the bands on the canvas.
 
-Each input has a small adapter that turns it into the same rows (bulk files share one reader, so the form's CSV and the sheet behave the same): `niche, keyword, audience, country, timeRange, formats, source`, where `niche` is what the person wrote and `keyword` an optional topic they listed. Empty fields are filled from **Defaults**. One **Gemini model** node serves both AI steps, so there is one AI credential to set up. To add another source (Airtable, Notion, a webhook), add one adapter that outputs those rows and connect it to **Defaults**. Nothing else changes.
+**Step 1 · Read the request.** The AI (**Plan topics**) reads what was written and returns the niche, the audience (if mentioned) and about 8 search terms. Google Trends works from search terms: for each one, Google reports the searches rising around it, from real search data. So nobody has to guess what's booming; the planner just has to pick good terms. Your own topics are judged rather than trusted or ignored:
 
-All native nodes: the **Apify** node for Google Trends, two **Basic LLM Chains** with a **Google Gemini Chat Model** and **Structured Output Parsers** (so the AI always returns valid fields), **n8n Form**, **Google Sheets**, **Slack** and **Telegram**.
+| What was written | What the planner did (live runs) |
+|---|---|
+| "skincare for beginners, mostly retinol for teens and acne scars" | kept **acne scars**; turned "retinol for teens" into **retinol** and **teen acne**; added salicylic acid, niacinamide, cerave… |
+| "…AI for product managers. Want to cover evals, agents, and how PMs should prototype with AI" | **llm evals**, **ai agents**, **ai prototyping**; added prompt engineering, rag, cursor ai… |
+| "personal finance for college students" + roth ira, a long phrase about saving money, credit card, crypto memes | kept **roth ira**, **credit card**; turned the phrase into **budgeting**; **left out "crypto memes"** and said why |
 
-## Setup (about 5 minutes)
+It matters. Across 8 free-form requests, searching the words as typed found 112 rising searches; the planned terms found 669 (630 in a second round). Two requests found nothing at all as typed.
 
-1. **Import** `workflow.json` (Workflows → Import from file, or Import from URL with the raw link to `workflow.json`).
-2. **Connect Apify** (it fetches the Google Trends data). If n8n offers to install the Apify node, click **Install** (it's a verified community node; on n8n Cloud the instance owner may need to allow verified community nodes in the Cloud Admin Panel first). Then:
-   - double-click the **Google Trends** node;
-   - open **Credential to connect with** and choose **Create new credential**;
-   - in the window that opens, click the **sign-in button** and approve in Apify. Nothing to copy.
+**Step 2 · Get Google Trends data.** The Apify node runs a Google Trends Actor. Niches with the same country and time range share calls (up to 40 terms each), so a 4-niche batch is one call.
 
-   *Self-hosted n8n has no Apify sign-in.* In the node, set *Authentication* to **API Key** first, then paste your token from [apify.com](https://apify.com) (Settings → API & Integrations) in that window.
-3. **Connect the AI** (it reads the request, plans the search terms and writes the ideas, so it's required). Double-click **Gemini model** → **Credential to connect with** → **Create new credential**, and paste a free key from [aistudio.google.com](https://aistudio.google.com). To use OpenAI, Anthropic, Groq or a local Ollama model, replace the **Gemini model** node with that chat model node and connect it to both **Plan topics** and **Write content ideas**.
-4. **Pick your ways in.** Way 1 (the form) works as soon as the workflow is active. For Way 2, set up the sheet (above) and pick it in **Read keyword sheet** and **Add to Google Sheet**. For a weekly message, turn on **Send to Slack** or **Send to Telegram** and connect it the same way.
-5. Optional: adjust **Defaults**.
+**Step 3 · Pick the best, write ideas.**
+- **Junk out.** Trends data in 2026 carries bot and AI-agent traffic: Breakouts like "how to make sushi" under skincare keywords, and prompt-like searches ("explain what niacinamide is and its main benefits for skin health"). Removed: searches that start like an instruction ("explain", "describe", "write", "list", "give me", "tell me", "summarize", "compare", "create", "generate", "provide", "act as"), contain phrases like "and its main benefits" or "why do you think", run past 15 words, or repeat under 3+ unrelated terms. Real long questions and product titles stay.
+- **Variants merged** ("trader joe's retinol" = "trader joes retinol"), **ranked by growth**, and **spread across terms**.
+- **The AI scores each rising search 0–10** and writes the ideas. Broad names on their own ("Claude", "Serum") score 5 or less. Several searches about the same product type become one idea. Facts stay out of titles and hooks unless they're on the fact-check list.
+- **If the AI fails** at either step, the run carries on with a note. Planning falls back to your words; ideas fall back to the list of rising searches.
 
-   | Setting | What it does | Default |
-   |---|---|---|
-   | `ideasPerNiche` | Ideas per niche | 10 |
-   | `minRelevance` | Keep AI ideas scored at least this (0–10) | 6 |
-   | `topicsPerNiche` | How many search terms the AI aims for per niche | 8 |
-   | `maxTopicsPerNiche` | The most it may use, including your own | 12 |
-   | `includeTopics` | Also use rising related topics, not just searches | true |
-   | `defaultCountry` | Used when a row has no country. Two-letter code, or empty for worldwide | US |
-   | `defaultTimeRange` | `now 7-d`, `today 1-m`, `today 3-m` or `today 12-m` | today 1-m |
-   | `defaultFormats` | What you publish, when the input doesn't say | blog post, short video, carousel, newsletter |
-   | `maxKeywordsPerRun` | A safety cap on search terms per run | 300 |
+**Step 4 · Deliver.** The form gets the results page. Sheet and test runs get one row per idea (19 fixed columns: `date, niche, mode, status, idea, angle, hook, format, whyRising, checkBeforePublishing, risingSearch, growth, type, alsoSearchedAs, newThisWeek, yourKeywords, relevance, googleTrends, note`) and a summary for Slack or Telegram. Weekly runs remember what was sent for 8 weeks. Nothing is published automatically.
 
-6. Click **Execute workflow** on **Way 3 · Test run** to see a result, then **activate** the workflow for the form and the weekly schedule.
-
-## Make it yours
-
-- **Another niche:** add rows to the sheet, or write it in the form. Nothing to edit.
-- **Faster or slower niches:** `defaultTimeRange` `now 7-d` for fast-moving topics, `today 3-m` for slow ones (the form has its own picker).
-- **Different output:** every idea is one flat row with fixed column names, so Notion, Airtable, email or a webhook can replace Google Sheets in one step.
-- **Different idea style:** edit the instructions in **Prepare AI request**, for example video scripts, newsletter sections or product ideas.
-- **Stricter or looser filtering:** raise `minRelevance`, or change the commented values at the top of **Clean and rank**.
+**Adding another input** (Airtable, Notion, a webhook): each way in has a small adapter that outputs the same rows (`niche, keyword, audience, country, timeRange, formats, source`). Add one that does the same and connect it to **Defaults**.
 
 ## How it was tested
 
 On n8n 2.44.6 (self-hosted) with the Apify node 0.9.0 and Gemini 3.8 Flash, against live data. Forms were submitted over HTTP the way the form page does it.
 
-| Test (current version) | Result |
+| Test | Result |
 |---|---|
-| **Web form, one free-form answer** ("I make YouTube videos about AI for product managers…") | Read as "AI product management"; watched llm evals, ai agents, ai prototyping (each labelled with the words it came from) plus five added terms; 10 idea cards in about 1.5 minutes |
-| **Web form, bulk only**: first box empty, a 4-niche CSV in the one-row-per-niche shape | 4 niches in about 2.5 minutes, 40 idea cards, sharing one Google Trends call. The page opened with "Ideas for 4 niches: …"; "how to deal with acne scars" became **acne scars**; roth ira and credit card were kept |
-| **Web form, short answer + an older keyword-per-row CSV** for two niches | "how to get rid of acne scars fast" became **acne scars**; the typed answer and the CSV's rows for the same niche were merged; 20 idea cards |
-| **Test run, free-form** ("…Mostly retinol, sunscreen and niacinamide, and how to deal with acne scars") | Kept retinol, sunscreen, niacinamide; turned the last part into **acne scars**; added four terms. 4 of the 10 ideas were about acne scars, as asked |
-| **Weekly sheet**: niches with topics (one of them "crypto memes", one in a `topics` column), a paused row, a row without a niche, and a free-text niche | Three niches in one Google Trends call, 29–30 sheet rows. "crypto memes" was left out and named; retinol and niacinamide kept; the paused row ignored; the row without a niche listed as skipped; the Japan row planned from its sentence |
-| **AI fails** (invalid key) | Planning fell back to the typed words split into short terms (retinol, sunscreen, niacinamide, acne scars); the ideas step fell back to the rising searches list; both with the matching note |
-| **Offline**: the workflow's own code, 6 inputs (form, form + CSV, older CSV, bulk-only CSV, sheet, test run) × 4 AI cases (both working, planning fails, ideas fail, both fail) | 24 of 24 pass |
+| Form, one free-form answer ("I make YouTube videos about AI for product managers…") | Watched llm evals, ai agents, ai prototyping (each labelled with the words it came from) plus five added terms; 10 ideas in about 1.5 minutes |
+| Form, 4-niche CSV with the first box empty | 4 niches, 40 ideas, one shared Google Trends call, about 2.5 minutes |
+| Form, older keyword-per-row CSV | Read and merged; "how to get rid of acne scars fast" became acne scars |
+| Test run, free-form skincare request mentioning acne scars | Kept retinol, sunscreen, niacinamide; 4 of the 10 ideas were about acne scars, as asked |
+| Weekly sheet, with an off-niche topic, a paused row, a row without a niche and a free-text niche | Three niches in one call; "crypto memes" left out and named; paused row ignored; missing niche listed as skipped; later runs left out ideas already sent |
+| AI failing (invalid key) | Both fallbacks worked, each with its note |
+| Offline: the workflow's own code, 6 kinds of input × 4 AI cases | 24 of 24 pass |
 
-From earlier rounds, on code that hasn't changed: later sheet runs skip ideas already sent and flag what's new; a quiet week gives a "nothing new is rising" summary and no sheet rows.
+The ideas prompt was tuned on 8 niches with 3 runs each. Unchecked numbers in titles and hooks went from 88 to 6 per 240 ideas, made-up personal experience from 2 to 0, and a "why" stated as fact from 111 to 0.
 
 Google Sheets, Slack and Telegram are standard n8n nodes. In these tests the sheet was read from a stand-in node with the same rows, and the outputs weren't connected to real accounts.
-
-### Idea quality, across niches
-
-The ideas prompt was tuned on **8 different niches**, with **3 runs each** on the same live Google Trends data: AI for product management, skincare, home espresso, personal finance (US and India), indie game dev, home workouts and small business marketing. The workflow's own Code nodes ran with real Gemini calls, and every idea was read, not just counted.
-
-| 24 runs each | First prompt (240 ideas) | Final prompt (229 ideas) |
-|---|---|---|
-| Unchecked numbers or amounts in titles and hooks ("$500 vs $2,500") | 88 | 6 |
-| Made-up personal experience ("I gave it access to…") | 2 | 0 |
-| A "why" stated as fact instead of a likely reason | 111 | 0 |
-| Broad one-word searches turned into ideas ("Claude", "Serum") | 12 | 3 |
-| The same picks across the 3 runs of a niche | about 74% | about 77% |
-
-In thin niches (indie game dev, where "unity" also brings "German Unity Day") you get fewer ideas instead of filler.
 
 ## Honest limits
 
 - Google Trends numbers are **relative**: "+3,600%" means fast growth, not big volume.
-- **AI ideas can still contain details that aren't true.** The prompt keeps facts out of titles and hooks unless they're on the fact-check list, and it still slips now and then; checking that list is your job. Nothing is published automatically.
-- The planner sometimes picks a term few people search. It shows up with a low count; replace it in your sheet if it keeps finding little.
-- The "already sent" memory belongs to weekly sheet runs on an active workflow; runs from the editor start fresh.
-- The form waits for the whole run, about 1.5–2 minutes per niche. For dozens of niches, use the sheet.
+- **AI ideas can still contain details that aren't true.** That's what the fact-check list is for, and checking it is your job.
+- The planner sometimes picks a term few people search. It shows up with a low count.
+- What people write goes to your AI provider, along with the rising searches.
 
 ## License
 
